@@ -12,6 +12,8 @@
 
 3.appkey申请需要先[创建应用](https://console.qweather.com/#/apps),后选添加数据key，选wabapi即可
 
+    国内的城市区域location关系：https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
+
 4.原本的文件结构、参数变量基本未做改变，主要包括当前天气，当前空气质量，小时天气预报，七日天气预报，生活指数建议，在此基础上增加了极端天气预警（sensor.heweather_disaster_warn）
 
 
@@ -20,29 +22,29 @@
 1.heweather_forecast(七日天气预报)
 ```
   - platform: heweather_forecast
-    location: 101210106    # 城市区域代码，api平台有查询接口查询
+    location: 101210106    # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
     key: ABCDE             # api平台申请的key
 ```   
     
 2.lifesuggestion(生活指数建议)    
 ```
   - platform: lifesuggestion
-    location: 101210106    # 城市区域代码，api平台有查询接口查询
+    location: 101210106    # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
     key: ABCDE             # api平台申请的key
     options:
-      - air
-      - comf
-      - cw
-      - drsg
-      - flu
-      - sport
-      - trav
-      - uv
-      - sunglass
-      - guomin
-      - liangshai
-      - fangshai
-      - kongtiao
+      - air                         #空气质量
+      - comf                        #舒适指数
+      - cw                          #洗车指数
+      - drsg                        #穿衣指数
+      - flu                         #感冒指数    
+      - sport                       #运动指数
+      - trav                        #旅行指数
+      - uv                          #紫外线指数
+      - sunglass                    #太阳镜指数
+      - guomin                      #过敏指数
+      - liangshai                   #晾晒指数
+      - fangshai                    #防晒指数
+      - kongtiao                    #空调指数
 ```      
       
 3.heweather（天气情况、空气质量、自然灾害预警）
@@ -63,28 +65,28 @@
     
 ```
   - platform: heweather
-    location: 101210106     # 城市区域代码，api平台有查询接口查询
+    location: 101210106     # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
     key: ABCDE              # api平台申请的key
     disasterlevel: 3
     disastermsg: allmsg
     options:
-      - disaster_warn
-      - temprature
+      - disaster_warn               #灾害预警信息
+      - temprature    
       - humidity
-      - category
-      - feelsLike
-      - text
-      - windDir
-      - windScale
-      - windSpeed
-      - pressure
-      - vis
-      - cloud
-      - dew
-      - precip
-      - qlty
-      - level
-      - primary
+      - category                    #空气质量
+      - feelsLike                   #体感温度
+      - text                        #天气情况
+      - windDir                     #风向
+      - windScale                   #风力
+      - windSpeed                   #风速度
+      - pressure                    #大气压强
+      - vis                         #能见度
+      - cloud                       #云量
+      - dew                         #露点温度
+      - precip                      #当前小时累计降水量
+      - qlty                        #aqi空气质量
+      - level                       #空气质量级别
+      - primary                     #主要污染物
       - pm25
       - pm10
       - co
@@ -96,14 +98,15 @@
 4.heweather_hourlyforecast（小时天气预报、1小时天气预警）
 ```
   - platform: heweather_hourlyforecast
-    location: 101210106    # 城市代码，api平台有查询接口查询
+    location: 101210106    # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
     key: ABCDE             # api平台申请的key
     options:
-      - remind
-      - 1hour
-      - 3hour
-      - 6hour
-      - 9hour
+      - remind      #小时天气预警
+      - 1hour       #1小时天气预报
+      - 3hour       #3小时天气预报
+      - 6hour       #6小时天气预报
+      - 9hour       #9小时天气预报
+                    #实际可配置1-24hour,以此类推
 ```
 
 
