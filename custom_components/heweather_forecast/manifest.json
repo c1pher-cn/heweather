@@ -1,0 +1,9 @@
+{
+  "domain": "heweather_forecast",
+"version":"1.0.0",
+  "name": "heweather_forecast",
+  "documentation": "https://www.example.com",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": []
+}

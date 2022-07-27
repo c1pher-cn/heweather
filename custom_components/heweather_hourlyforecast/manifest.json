@@ -1,0 +1,9 @@
+{
+  "domain": "heweather_hourlyforecast",
+"version":"1.0.0",
+  "name": "heweather_hourlyforecast",
+  "documentation": "https://www.example.com",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": []
+}

@@ -1,0 +1,9 @@
+{
+  "domain": "lifesuggestion",
+  "version":"1.0.0",
+  "name": "heweather lifesuggestion",
+  "documentation": "https://www.example.com",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": []
+}
