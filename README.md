@@ -1,7 +1,6 @@
-# heweather  alert-outline
-和风天气 homeassistant插件
+# 和风天气 homeassistant插件
 
-我使用的插件最早引用自[瀚思彼岸智能家居技术论坛](https://bbs.hassbian.com/) Golden_Soap大佬的[插件](https://bbs.hassbian.com/thread-3971-1-1.html),但大佬一直没有更新过配置，导致我的环境一直无法运行，正好借着这个机会再学习一边插件，哈哈哈
+我使用的插件最早引用自[瀚思彼岸智能家居技术论坛](https://bbs.hassbian.com/) Golden_Soap大佬的[插件](https://bbs.hassbian.com/thread-3971-1-1.html),但大佬一直没有更新过配置，导致我的环境一直无法运行，正好借着这个机会再学习一边插件，哈哈哈。
 自己肝的原因主要是懒得改之前的参数配置，换插件全得改一遍，有的数据还没了。如果对你有帮助，就来b站支持一波吧[_小愚_](https://space.bilibili.com/15856864)嘿嘿
 
 ## 主要修改点：
