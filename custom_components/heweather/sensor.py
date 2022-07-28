@@ -461,7 +461,7 @@ class WeatherData(object):
         titlemsg=''
         for i in disaster_warn:
             #if DISASTER_LEVEL[i["severity"]] >= 订阅等级:
-            if DISASTER_LEVEL[i["severity"]] >= self._disasterlevel:
+            if (DISASTER_LEVEL[i["severity"]] >= int(self._disasterlevel)):
                 allmsg = allmsg + i["title"] + '\r\n' + i["text"] + '\t\r\n'
                 titlemsg = titlemsg + i["title"] +'\r\n'
             
