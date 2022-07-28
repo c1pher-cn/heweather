@@ -462,11 +462,11 @@ class WeatherData(object):
         for i in disaster_warn:
             #if DISASTER_LEVEL[i["severity"]] >= 订阅等级:
             if (DISASTER_LEVEL[i["severity"]] >= int(self._disasterlevel)):
-                allmsg = allmsg + i["title"] + '\r\n' + i["text"] + '\t\r\n'
-                titlemsg = titlemsg + i["title"] +'\r\n'
+                allmsg = allmsg +i["title"] + ':' + i["text"] + '||'
+                titlemsg = titlemsg + i["title"] + '||'    
             
         if(len(titlemsg)<5):
-            self._disaster_warn =  '近日无灾害'
+            self._disaster_warn =  '近日无'+ self._disasterlevel +'级及以上灾害'  
         #if(订阅标题)
         elif(self._disastermsg=='title'):
             self._disaster_warn =  titlemsg
