@@ -19,7 +19,7 @@
 
 ## 配置方法
 
-1.heweather_forecast(七日天气预报)
+1.heweather_forecast(七日天气预报)，放在weather里
 ```
 weather:
   - platform: heweather_forecast
@@ -27,7 +27,7 @@ weather:
     key: ABCDE             # api平台申请的key
 ```   
     
-2.lifesuggestion(生活指数建议)    
+2.lifesuggestion(生活指数建议)，放在sensor里
 ```
 sensor:
   - platform: lifesuggestion
@@ -49,7 +49,7 @@ sensor:
       - kongtiao                    #空调指数
 ```      
       
-3.heweather（天气情况、空气质量、自然灾害预警）
+3.heweather（天气情况、空气质量、自然灾害预警），放在sensor里
 
   disasterlevel的数字表示关注的自然灾害等级，配置3表示关注 >=3级的灾害
   
@@ -98,7 +98,7 @@ sensor:
       - o3
  ```    
       
-4.heweather_hourlyforecast（小时天气预报、1小时天气预警）
+4.heweather_hourlyforecast（小时天气预报、1小时天气预警），放在sensor里
 ```
 sensor:
   - platform: heweather_hourlyforecast
