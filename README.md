@@ -21,6 +21,7 @@
 
 1.heweather_forecast(七日天气预报)
 ```
+weather:
   - platform: heweather_forecast
     location: 101210106    # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
     key: ABCDE             # api平台申请的key
@@ -28,6 +29,7 @@
     
 2.lifesuggestion(生活指数建议)    
 ```
+sensor:
   - platform: lifesuggestion
     location: 101210106    # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
     key: ABCDE             # api平台申请的key
@@ -64,6 +66,7 @@
     allmsg 显示标题+明细信息
     
 ```
+sensor:
   - platform: heweather
     location: 101210106     # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
     key: ABCDE              # api平台申请的key
@@ -97,6 +100,7 @@
       
 4.heweather_hourlyforecast（小时天气预报、1小时天气预警）
 ```
+sensor:
   - platform: heweather_hourlyforecast
     location: 101210106    # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
     key: ABCDE             # api平台申请的key
