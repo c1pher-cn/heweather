@@ -113,6 +113,8 @@ sensor:
                     #实际可配置1-24hour,以此类推
 ```
 
-##自动化配置实例
+
+## 自动化配置实例
+
 https://www.bilibili.com/read/cv18078640
 
