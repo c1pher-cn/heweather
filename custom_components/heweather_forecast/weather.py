@@ -113,7 +113,7 @@ class LocalWeather(WeatherEntity):
     @property
     def temperature_unit(self):
         """Return the unit of measurement."""
-        return _attr_native_temperature_unit 
+        return self._attr_native_temperature_unit
 
     @property
     def humidity(self):
