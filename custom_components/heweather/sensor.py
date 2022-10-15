@@ -126,6 +126,7 @@ class HeweatherWeatherSensor(Entity):
         self._type = option
         self._state = None
         self._updatetime = None
+        self._attr_unique_id = OPTIONS[option][0] + 'key'
 
     @property
     def name(self):
