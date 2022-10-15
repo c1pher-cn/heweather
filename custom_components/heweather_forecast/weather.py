@@ -72,13 +72,14 @@ def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
 class LocalWeather(WeatherEntity):
     """Representation of a weather condition."""
 
+    _attr_native_temperature_unit = TEMP_CELSIUS
+    
     def __init__(self, data):
         """Initialize the  weather."""
         self._name = None
         self._object_id = 'localweather'
         self._condition = None
         self._temperature = None
-        self._temperature_unit = None
         self._humidity = None
         self._pressure = None
         self._wind_speed = None
@@ -112,7 +113,7 @@ class LocalWeather(WeatherEntity):
     @property
     def temperature_unit(self):
         """Return the unit of measurement."""
-        return self._temperature_unit
+        return self._attr_native_temperature_unit
 
     @property
     def humidity(self):
@@ -181,7 +182,7 @@ class LocalWeather(WeatherEntity):
         self._name = self._data.name
         self._condition = self._data.condition
         self._temperature = self._data.temperature
-        self._temperature_unit = self._data.temperature_unit
+        _attr_native_temperature_unit  = self._data.temperature_unit
         self._humidity = self._data.humidity
         self._pressure = self._data.pressure
         self._wind_speed = self._data.wind_speed
