@@ -89,6 +89,7 @@ class LocalWeather(WeatherEntity):
 
         self._data = data
         self._updatetime = None
+        self._attr_unique_id = 'localweather_unique_id'
 
     @property
     def name(self):
