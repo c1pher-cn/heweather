@@ -66,7 +66,7 @@ def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     yield from data.async_update(dt_util.now())
     async_track_time_interval(hass, data.async_update, TIME_BETWEEN_UPDATES)
 
-    async_add_devices([LocalWeather(data)], True)
+    async_add_devices([LocalWeather(data, location)], True)
 
 
 class LocalWeather(WeatherEntity):
@@ -74,7 +74,7 @@ class LocalWeather(WeatherEntity):
 
     _attr_native_temperature_unit = TEMP_CELSIUS
     
-    def __init__(self, data):
+    def __init__(self, data, location):
         """Initialize the  weather."""
         self._name = None
         self._object_id = 'localweather'
@@ -89,7 +89,7 @@ class LocalWeather(WeatherEntity):
 
         self._data = data
         self._updatetime = None
-        self._attr_unique_id = 'localweather_unique_id'
+        self._attr_unique_id = 'localweather_'+location
 
     @property
     def name(self):
