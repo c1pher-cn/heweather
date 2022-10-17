@@ -76,14 +76,14 @@ def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     # 根据配置文件options中的内容，添加若干个设备
     dev = []
     for option in config[CONF_OPTIONS]:
-        dev.append(LifeSuggestion(data,option,key))
+        dev.append(LifeSuggestion(data,option,location))
     async_add_devices(dev, True)
 
 
 class LifeSuggestion(Entity):
     """定义一个温度传感器的类，继承自HomeAssistant的Entity类."""
 
-    def __init__(self,data,option,key):
+    def __init__(self,data,option,location):
         """初始化."""
         self._data = data
         self._object_id = OPTIONS[option][0]
@@ -93,7 +93,7 @@ class LifeSuggestion(Entity):
         self._type = option
         self._state = None
         self._updatetime = None
-        self._attr_unique_id = OPTIONS[option][0] + key
+        self._attr_unique_id = OPTIONS[option][0] + location
 
     @property
     def name(self):
