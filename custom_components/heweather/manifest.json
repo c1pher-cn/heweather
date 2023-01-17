@@ -1,9 +1,12 @@
 {
+  "name": "HeFeng Weather",
   "domain": "heweather",
-"version":"1.0.0",
+  "version":"1.0.0",
   "name": "heweather",
   "documentation": "https://www.bilibili.com/read/cv17792717",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/c1pher-cn/heweather/issues",
   "dependencies": [],
-  "codeowners": [],
+  "codeowners": ["@_小愚_"],
   "requirements": []
 }
