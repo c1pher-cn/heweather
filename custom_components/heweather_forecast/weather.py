@@ -257,7 +257,7 @@ class WeatherData():
         return self._humidity
 
     @property
-    def pressuref(self):
+    def pressure(self):
         """气压."""
         return self._pressure
 
