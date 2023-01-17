@@ -122,7 +122,7 @@ class LocalWeather(WeatherEntity):
         return True
 
     @property
-    def temperature(self):
+    def native_temperature(self):
         """Return the temperature."""
         return self._temperature
 
@@ -137,7 +137,7 @@ class LocalWeather(WeatherEntity):
         return self._humidity
 
     @property
-    def wind_speed(self):
+    def native_wind_speed(self):
         """Return the wind speed."""
         return self._wind_speed
     
@@ -147,7 +147,7 @@ class LocalWeather(WeatherEntity):
         return self._wind_bearing
 
     @property
-    def pressure(self):
+    def native_pressuref(self):
         """Return the pressure."""
         return self._pressure
 
@@ -242,7 +242,7 @@ class WeatherData():
         return self._condition
 
     @property
-    def native_temperature(self):
+    def temperature(self):
         """温度."""
         return self._temperature
 
@@ -257,12 +257,12 @@ class WeatherData():
         return self._humidity
 
     @property
-    def native_pressuref(self):
+    def pressuref(self):
         """气压."""
         return self._pressure
 
     @property
-    def native_wind_speed(self):
+    def wind_speed(self):
         """风速."""
         return self._wind_speed
     
