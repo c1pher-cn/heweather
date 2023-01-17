@@ -11,9 +11,20 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 
 from homeassistant.components.weather import (
-    WeatherEntity, ATTR_FORECAST_CONDITION, ATTR_FORECAST_TEMP,  
-    ATTR_FORECAST_TEMP_LOW, ATTR_FORECAST_TIME, PLATFORM_SCHEMA)
-from homeassistant.const import (ATTR_ATTRIBUTION, TEMP_CELSIUS)
+    WeatherEntity, 
+    ATTR_FORECAST_CONDITION, 
+    ATTR_FORECAST_NATIVE_TEMP,
+    ATTR_FORECAST_NATIVE_TEMP_LOW,
+    ATTR_FORECAST_TIME, 
+    PLATFORM_SCHEMA)
+from homeassistant.const import (
+    ATTR_ATTRIBUTION, 
+    CONF_MODE,
+    LENGTH_MILLIMETERS,
+    PRESSURE_HPA,
+    SPEED_METERS_PER_SECOND,
+    TEMP_CELSIUS
+)
 
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.dt as dt_util
@@ -74,6 +85,9 @@ class LocalWeather(WeatherEntity):
     """Representation of a weather condition."""
 
     _attr_native_temperature_unit = TEMP_CELSIUS
+    _attr_native_precipitation_unit = LENGTH_MILLIMETERS
+    _attr_native_pressure_unit = PRESSURE_HPA
+    _attr_native_wind_speed_unit = SPEED_METERS_PER_SECOND
     
     def __init__(self, data, location):
         """Initialize the  weather."""
@@ -169,8 +183,8 @@ class LocalWeather(WeatherEntity):
             data_dict = {
                 ATTR_FORECAST_TIME: reftime.isoformat(),
                 ATTR_FORECAST_CONDITION: entry[0],
-                ATTR_FORECAST_TEMP: entry[1],
-                ATTR_FORECAST_TEMP_LOW: entry[2]
+                ATTR_FORECAST_NATIVE_TEMP: entry[1],
+                ATTR_FORECAST_NATIVE_TEMP_LOW: entry[2]
             }
             reftime = reftime + timedelta(days=1)
             forecast_data.append(data_dict)
@@ -228,7 +242,7 @@ class WeatherData():
         return self._condition
 
     @property
-    def temperature(self):
+    def native_temperature(self):
         """温度."""
         return self._temperature
 
@@ -243,12 +257,12 @@ class WeatherData():
         return self._humidity
 
     @property
-    def pressure(self):
+    def native_pressuref(self):
         """气压."""
         return self._pressure
 
     @property
-    def wind_speed(self):
+    def native_wind_speed(self):
         """风速."""
         return self._wind_speed
     
