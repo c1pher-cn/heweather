@@ -1,6 +1,6 @@
 {
   "name": "HeFeng Weather",
-  "domain": "heweather",
+  "domain": "heweather_hourlyforecast",
   "version":"1.0.0",
   "name": "heweather",
   "documentation": "https://www.bilibili.com/read/cv17792717",
