@@ -15,7 +15,15 @@ from homeassistant.helpers.event import async_track_time_interval
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
-    ATTR_ATTRIBUTION, ATTR_FRIENDLY_NAME, TEMP_CELSIUS)
+    ATTR_ATTRIBUTION, ATTR_FRIENDLY_NAME,
+    TEMP_CELSIUS,
+    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+    PERCENTAGE,
+    PRECIPITATION_MILLIMETERS_PER_HOUR,
+    SPEED_KILOMETERS_PER_HOUR,
+    PRESSURE_HPA,
+    LENGTH_KILOMETERS
+)
 from homeassistant.helpers.entity import Entity
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.dt as dt_util
@@ -34,33 +42,33 @@ CONF_DISASTERMSG = "disastermsg"
 # 定义三个可选项：温度、湿度、PM2.5
 OPTIONS = {
     "temprature": ["Heweather_temperature", "室外温度", "mdi:thermometer", TEMP_CELSIUS],
-    "humidity": ["Heweather_humidity", "室外湿度", "mdi:water-percent", "%"],
+    "humidity": ["Heweather_humidity", "室外湿度", "mdi:water-percent", PERCENTAGE],
     "feelsLike": ["Heweather_feelsLike", "体感温度", "mdi:thermometer", TEMP_CELSIUS],
     "text": ["Heweather_text", "天气描述", "mdi:thermometer", ' '],
-    "precip": ["Heweather_precip", "小时降水量", "mdi:thermometer", '毫米'],
+    "precip": ["Heweather_precip", "小时降水量", "mdi:thermometer", PRECIPITATION_MILLIMETERS_PER_HOUR],
     "windDir": ["Heweather_windDir", "风向", "mdi:thermometer", ' '],
     "windScale": ["Heweather_windScale", "风力等级", "mdi:thermometer", ' '],
-    "windSpeed": ["Heweather_windSpeed", "风速", "mdi:thermometer", '公里/小时'],
+    "windSpeed": ["Heweather_windSpeed", "风速", "mdi:thermometer", SPEED_KILOMETERS_PER_HOUR],
 
     
     "dew": ["Heweather_dew", "露点温度", "mdi:thermometer", ' '],
-    "pressure": ["Heweather_pressure", "大气压强", "mdi:thermometer", '百帕'],
-    "vis": ["Heweather_vis", "能见度", "mdi:thermometer", 'km'],
-    "cloud": ["Heweather_cloud", "云量", "mdi:thermometer", ' '],
+    "pressure": ["Heweather_pressure", "大气压强", "mdi:thermometer", PRESSURE_HPA],
+    "vis": ["Heweather_vis", "能见度", "mdi:thermometer", LENGTH_KILOMETERS],
+    "cloud": ["Heweather_cloud", "云量", "mdi:thermometer", PERCENTAGE],
     
     
     
     "primary": ["Heweather_primary", "空空气质量的主要污染物", "mdi:walk", " "],
     "category": ["Heweather_category", "空气质量指数级别", "mdi:walk", " "],
     "level": ["Heweather_level", "空气质量指数等级", "mdi:walk", " "],
-    "pm25": ["Heweather_pm25", "PM2.5", "mdi:walk", "μg/m3"],
-    "pm10": ["Heweather_pm10", "PM10", "mdi:walk", "μg/m3"],
+    "pm25": ["Heweather_pm25", "PM2.5", "mdi:walk", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
+    "pm10": ["Heweather_pm10", "PM10", "mdi:walk", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
     
     
-    "no2": ["Heweather_no2", "二氧化氮", "mdi:emoticon-dead", "μg/m3"],
-    "so2": ["Heweather_so2", "二氧化硫", "mdi:emoticon-dead", "μg/m3"],
-    "co": ["Heweather_co", "一氧化碳", "mdi:emoticon-dead", "μg/m3"],
-    "o3": ["Heweather_o3", "臭氧", "mdi:weather-cloudy", "μg/m3"],
+    "no2": ["Heweather_no2", "二氧化氮", "mdi:emoticon-dead", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
+    "so2": ["Heweather_so2", "二氧化硫", "mdi:emoticon-dead", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
+    "co": ["Heweather_co", "一氧化碳", "mdi:emoticon-dead", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
+    "o3": ["Heweather_o3", "臭氧", "mdi:weather-cloudy", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
     "qlty": ["Heweather_qlty", "综合空气质量", "mdi:quality-high", " "],
     "disaster_warn": ["Heweather_disaster_warn", "灾害预警", "mdi:warning-outline", " "],
 
@@ -184,6 +192,15 @@ class HeweatherWeatherSensor(Entity):
             self._state = self._data.windSpeed
         elif self._type == "precip":
             self._state = self._data.precip
+        elif self._type == "pressure":
+            self._state = self._data.pressure
+        elif self._type == "vis":
+            self._state = self._data.vis
+        elif self._type == "dew":
+            self._state = self._data.dew
+        elif self._type == "cloud":
+            self._state = self._data.cloud
+
             
         elif self._type == "category":
             self._state = self._data.category
@@ -401,7 +418,7 @@ class WeatherData(object):
         # 通过HTTP访问，获取需要的信息
         # 此处使用了基于aiohttp库的async_get_clientsession
         try:
-            timeout = aiohttp.ClientTimeout(total=10)  
+            timeout = aiohttp.ClientTimeout(total=20)  
             connector = aiohttp.TCPConnector(limit=10)  
             async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
                 async with session.get(self._weather_now_url) as response:
