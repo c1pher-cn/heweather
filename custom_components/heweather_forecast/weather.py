@@ -332,7 +332,7 @@ class WeatherData():
         # 通过HTTP访问，获取需要的信息
         # 此处使用了基于aiohttp库的async_get_clientsession
         try:
-            timeout = aiohttp.ClientTimeout(total=10)
+            timeout = aiohttp.ClientTimeout(total=20)
             connector = aiohttp.TCPConnector(limit=10)
             async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
                 async with session.get(self._weather_now_url) as response:
@@ -391,6 +391,8 @@ class WeatherData():
         self._wind_speed = weather["windSpeed"]
         self._wind_bearing = weather["windDir"]
         self._visibility = weather["vis"]
+        self._precipitation = weather["precip"]
+
 
         #self._windDir = weather["windDir"]
        # self._windScale = weather["windScale"]
