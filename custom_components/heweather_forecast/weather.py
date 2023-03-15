@@ -22,7 +22,7 @@ from homeassistant.const import (
     CONF_MODE,
     LENGTH_MILLIMETERS,
     PRESSURE_HPA,
-    SPEED_METERS_PER_SECOND,
+    SPEED_KILOMETERS_PER_HOUR,
     TEMP_CELSIUS
 )
 
@@ -87,7 +87,7 @@ class LocalWeather(WeatherEntity):
     _attr_native_temperature_unit = TEMP_CELSIUS
     _attr_native_precipitation_unit = LENGTH_MILLIMETERS
     _attr_native_pressure_unit = PRESSURE_HPA
-    _attr_native_wind_speed_unit = SPEED_METERS_PER_SECOND
+    _attr_native_wind_speed_unit = SPEED_KILOMETERS_PER_HOUR
     
     def __init__(self, data, location):
         """Initialize the  weather."""
@@ -147,7 +147,7 @@ class LocalWeather(WeatherEntity):
         return self._wind_bearing
 
     @property
-    def native_pressuref(self):
+    def native_pressure(self):
         """Return the pressure."""
         return self._pressure
 
