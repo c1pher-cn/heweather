@@ -391,7 +391,7 @@ class WeatherData():
         self._wind_speed = weather["windSpeed"]
         self._wind_bearing = weather["windDir"]
         self._visibility = weather["vis"]
-        self._precipitation = weather["precip"]
+        self._precipitation =  float(weather["precip"])
 
 
         #self._windDir = weather["windDir"]
