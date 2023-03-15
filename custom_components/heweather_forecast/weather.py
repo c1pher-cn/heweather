@@ -23,6 +23,7 @@ from homeassistant.const import (
     LENGTH_MILLIMETERS,
     PRESSURE_HPA,
     SPEED_KILOMETERS_PER_HOUR,
+    PRECIPITATION_MILLIMETERS_PER_HOUR,
     TEMP_CELSIUS
 )
 
@@ -85,9 +86,11 @@ class LocalWeather(WeatherEntity):
     """Representation of a weather condition."""
 
     _attr_native_temperature_unit = TEMP_CELSIUS
-    _attr_native_precipitation_unit = LENGTH_MILLIMETERS
+    _attr_native_precipitation_unit = PRECIPITATION_MILLIMETERS_PER_HOUR
     _attr_native_pressure_unit = PRESSURE_HPA
     _attr_native_wind_speed_unit = SPEED_KILOMETERS_PER_HOUR
+    _attr_native_visibility_unit = LENGTH_MILLIMETERS 
+
     
     def __init__(self, data, location):
         """Initialize the  weather."""
@@ -99,7 +102,8 @@ class LocalWeather(WeatherEntity):
         self._pressure = None
         self._wind_speed = None
         self._wind_bearing = None
-
+        self._visibility = None
+        self._precipitation = None
         self._forecast = None
 
         self._data = data
@@ -150,7 +154,17 @@ class LocalWeather(WeatherEntity):
     def native_pressure(self):
         """Return the pressure."""
         return self._pressure
-
+    
+    @property
+    def native_visibility(self):
+        """Return the visibility."""
+        return self._visibility
+    
+    @property
+    def native_precipitation(self):
+        """Return the precipitation."""
+        return self._precipitation   
+    
     @property
     def condition(self):
         """Return the weather condition."""
@@ -203,6 +217,9 @@ class LocalWeather(WeatherEntity):
         self._pressure = self._data.pressure
         self._wind_speed = self._data.wind_speed
         self._wind_bearing = self._data.wind_bearing
+        self._visibility = self._data.visibility
+        self._precipitation = self._data.precipitation
+
         self._forecast = self._data.forecast
         _LOGGER.info("success to update informations")
 
@@ -215,7 +232,7 @@ class WeatherData():
         self._hass = hass
 
         #self._url = "https://free-api.heweather.com/s6/weather/forecast?location="+location+"&key="+key
-        self._forecast_url_ = "https://devapi.qweather.com/v7/weather/7d?location="+location+"&key="+key
+        self._forecast_url = "https://devapi.qweather.com/v7/weather/7d?location="+location+"&key="+key
         self._weather_now_url = "https://devapi.qweather.com/v7/weather/now?location="+location+"&key="+key
         self._params = {"location": location,
                         "key": key}
@@ -228,6 +245,9 @@ class WeatherData():
         self._pressure = None
         self._wind_speed = None
         self._wind_bearing = None
+        self._visibility = None
+        self._precipitation = None
+    
         self._forecast = None
         self._updatetime = None
 
@@ -270,7 +290,18 @@ class WeatherData():
     def wind_bearing(self):
         """风向."""
         return self._wind_bearing
-
+    
+    @property
+    def visibility(self):
+        """能见度."""
+        return self._visibility
+    
+    @property
+    def precipitation (self):
+        """当前小时累计降水量."""
+        return self._precipitation    
+    
+    
     @property
     def forecast(self):
         """预报."""
@@ -307,12 +338,13 @@ class WeatherData():
                 async with session.get(self._weather_now_url) as response:
                     json_data = await response.json()
                     weather = json_data["now"]
-                async with session.get(self._forecast_url_) as response:
+                async with session.get(self._forecast_url) as response:
                     json_data = await response.json()
                     forecast = json_data
 
         except(asyncio.TimeoutError, aiohttp.ClientError):
             _LOGGER.error("Error while accessing: %s", self._weather_now_url)
+            _LOGGER.error("Error while accessing: %s", self._forecast_url)
             return
         
         
@@ -358,6 +390,7 @@ class WeatherData():
         self._condition = weather["text"]
         self._wind_speed = weather["windSpeed"]
         self._wind_bearing = weather["windDir"]
+        self._visibility = weather["vis"]
 
         #self._windDir = weather["windDir"]
        # self._windScale = weather["windScale"]
