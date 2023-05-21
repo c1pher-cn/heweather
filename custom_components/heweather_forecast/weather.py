@@ -20,7 +20,7 @@ from homeassistant.components.weather import (
 from homeassistant.const import (
     ATTR_ATTRIBUTION, 
     CONF_MODE,
-    LENGTH_MILLIMETERS,
+    LENGTH_KILOMETERS,
     PRESSURE_HPA,
     SPEED_KILOMETERS_PER_HOUR,
     PRECIPITATION_MILLIMETERS_PER_HOUR,
@@ -89,8 +89,7 @@ class LocalWeather(WeatherEntity):
     _attr_native_precipitation_unit = PRECIPITATION_MILLIMETERS_PER_HOUR
     _attr_native_pressure_unit = PRESSURE_HPA
     _attr_native_wind_speed_unit = SPEED_KILOMETERS_PER_HOUR
-    _attr_native_visibility_unit = LENGTH_MILLIMETERS 
-
+    _attr_native_visibility_unit = LENGTH_KILOMETERS
     
     def __init__(self, data, location):
         """Initialize the  weather."""
