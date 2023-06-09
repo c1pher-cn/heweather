@@ -98,8 +98,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-@asyncio.coroutine
-def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
+#@asyncio.coroutine
+async def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     """这个协程是程序的入口，其中add_devices函数也变成了异步版本."""
     _LOGGER.info("setup platform sensor.Heweather...")
 
@@ -110,7 +110,8 @@ def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     # 这里通过 data 实例化class weatherdata，并传入调用API所需信息
     data = WeatherData(hass, location, key, disastermsg, disasterlevel)  
     # 调用data实例中的异步更新函数，yield 现在我简单的理解为将后面函数变成一个生成器，减小内存占用？
-    yield from data.async_update(dt_util.now()) 
+    #yield from 
+    await data.async_update(dt_util.now()) 
     async_track_time_interval(hass, data.async_update, TIME_BETWEEN_UPDATES)
 
     # 根据配置文件options中的内容，添加若干个设备
@@ -170,8 +171,8 @@ class HeweatherWeatherSensor(Entity):
                 ATTR_UPDATE_TIME: self._updatetime
             }
 
-    @asyncio.coroutine
-    def async_update(self):
+    #@asyncio.coroutine
+    async def async_update(self):
         """update函数变成了async_update."""
         self._updatetime = self._data.updatetime
 
@@ -398,7 +399,7 @@ class WeatherData(object):
         """更新时间."""
         return self._updatetime
 
-    @asyncio.coroutine
+    #@asyncio.coroutine
     async def async_update(self, now):
         """从远程更新信息."""
         _LOGGER.info("Update from JingdongWangxiang's OpenAPI...")
@@ -411,7 +412,8 @@ class WeatherData(object):
         _LOGGER.info("after time.sleep and before asyncio.sleep")
         asyncio.sleep(40)
         _LOGGER.info("after asyncio.sleep and before yield from asyncio.sleep")
-        yield from asyncio.sleep(40)
+        #yield from 
+	await asyncio.sleep(40)
         _LOGGER.info("after yield from asyncio.sleep")
         """
 
