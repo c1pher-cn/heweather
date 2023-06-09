@@ -65,8 +65,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-@asyncio.coroutine
-def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
+#@asyncio.coroutine
+async def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     """Set up the hefeng weather."""
     _LOGGER.info("setup platform weather.Heweather...")
 
@@ -76,7 +76,8 @@ def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
 
     data = WeatherData(hass, location, key)
 
-    yield from data.async_update(dt_util.now())
+    #yield from 
+    await data.async_update(dt_util.now())
     async_track_time_interval(hass, data.async_update, TIME_BETWEEN_UPDATES)
 
     async_add_devices([LocalWeather(data, location)], True)
@@ -93,7 +94,7 @@ class LocalWeather(WeatherEntity):
     
     def __init__(self, data, location):
         """Initialize the  weather."""
-        self._name = None
+        #self._name = None
         self._object_id = 'localweather'
         self._condition = None
         self._temperature = None
@@ -109,10 +110,10 @@ class LocalWeather(WeatherEntity):
         self._updatetime = None
         self._attr_unique_id = 'localweather_'+location
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._object_id
+    #@property
+    #def name(self):
+    #    """Return the name of the sensor."""
+    #    return self._object_id
 
     @property
     def registry_name(self):
@@ -204,11 +205,11 @@ class LocalWeather(WeatherEntity):
 
         return forecast_data
 
-    @asyncio.coroutine
-    def async_update(self, now=DEFAULT_TIME):
+    #@asyncio.coroutine
+    async def async_update(self, now=DEFAULT_TIME):
         """update函数变成了async_update."""
         self._updatetime = self._data.updatetime
-        self._name = self._data.name
+        #self._name = self._data.name
         self._condition = self._data.condition
         self._temperature = self._data.temperature
         _attr_native_temperature_unit  = self._data.temperature_unit
@@ -236,7 +237,7 @@ class WeatherData():
         self._params = {"location": location,
                         "key": key}
 
-        self._name = None
+        #self._name = None
         self._condition = None
         self._temperature = None
         self._temperature_unit = None
@@ -250,10 +251,10 @@ class WeatherData():
         self._forecast = None
         self._updatetime = None
 
-    @property
-    def name(self):
-        """地点."""
-        return self._name
+    #@property
+    #def name(self):
+    #    """地点."""
+    #    return self._name
 
     @property
     def condition(self):
@@ -311,7 +312,7 @@ class WeatherData():
         """更新时间."""
         return self._updatetime
 
-    @asyncio.coroutine
+    #@asyncio.coroutine
     async def async_update(self, now):
         """从远程更新信息."""
         _LOGGER.info("Update from JingdongWangxiang's OpenAPI...")
@@ -324,7 +325,8 @@ class WeatherData():
         _LOGGER.info("after time.sleep and before asyncio.sleep")
         asyncio.sleep(40)
         _LOGGER.info("after asyncio.sleep and before yield from asyncio.sleep")
-        yield from asyncio.sleep(40)
+        #yield from 
+	await asyncio.sleep(40)
         _LOGGER.info("after yield from asyncio.sleep")
         """
 
@@ -421,4 +423,3 @@ class WeatherData():
             [forec_cond[6], int(datemsg[6]["tempMax"]), int(datemsg[6]["tempMin"])]
         ]
         _LOGGER.info("success to load local informations")
-
