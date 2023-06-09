@@ -322,9 +322,9 @@ class WeatherData(object):
             return
 
         #result = yield from response.json()
-	result = await response.json()
+        result = await response.json()
         
-	if result is None:
+        if result is None:
             _LOGGER.error("Request api Error")
             return
         elif result["code"] != "200":
