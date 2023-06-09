@@ -60,8 +60,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-@asyncio.coroutine
-def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
+#@asyncio.coroutine
+async def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     """这个协程是程序的入口，其中add_devices函数也变成了异步版本."""
     _LOGGER.info("setup platform sensor.Heweather...")
 
@@ -70,7 +70,7 @@ def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     # 这里通过 data 实例化class SuggestionData，并传入调用API所需信息
     data = SuggestionData(hass, location, key)  
     # 调用data实例中的异步更新函数，yield 现在我简单的理解为将后面函数变成一个生成器，减小内存占用？
-    yield from data.async_update(dt_util.now()) 
+    await data.async_update(dt_util.now()) 
     async_track_time_interval(hass, data.async_update, TIME_BETWEEN_UPDATES)
 
     # 根据配置文件options中的内容，添加若干个设备
@@ -152,8 +152,8 @@ class LifeSuggestion(Entity):
                 ATTR_SUGGESTION: "{}".format(sgt)
             }
 
-    @asyncio.coroutine
-    def async_update(self):
+    #@asyncio.coroutine
+    async def async_update(self):
         """update函数变成了async_update."""
         self._updatetime = self._data.updatetime
 
@@ -283,14 +283,14 @@ class SuggestionData(object):
         """防晒指数"""
         return self._fangshai
 
-    @asyncio.coroutine
-    def async_update(self, now):
+    #@asyncio.coroutine
+    async def async_update(self, now):
         """从远程更新信息."""
         try:
             session = async_get_clientsession(self._hass)
             with async_timeout.timeout(15):
             #with async_timeout.timeout(15, loop=self._hass.loop):
-                response = yield from session.get(
+                response = await session.get(
                     self._url)
 
         except(asyncio.TimeoutError, aiohttp.ClientError):
@@ -303,7 +303,7 @@ class SuggestionData(object):
                           response.status)
             return
 
-        result = yield from response.json()
+        result = await response.json()
 
         if result is None:
             _LOGGER.error("Request api Error")
