@@ -134,8 +134,14 @@ class HeweatherWeatherSensor(Entity):
 
         self._type = option
         self._state = None
+        self._attributes = {"states":"null"}
         self._updatetime = None
         self._attr_unique_id = OPTIONS[option][0] + location
+    
+    @property
+    def extra_state_attributes(self):
+        """Return entity specific state attributes."""
+        return self._attributes
 
     @property
     def name(self):
@@ -226,8 +232,12 @@ class HeweatherWeatherSensor(Entity):
         elif self._type == "qlty":
             self._state = self._data.qlty
         elif self._type == "disaster_warn":
-            self._state = self._data.disaster_warn
-
+            if len(self._data.disaster_warn) > 10:
+                self._state = 'on'
+                self._attributes["states"] = self._data.disaster_warn
+            else:
+                self._state = 'off'
+                self._attributes["states"] = self._data.disaster_warn
 
 
 class WeatherData(object):
