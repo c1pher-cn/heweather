@@ -11,14 +11,16 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 
 from homeassistant.components.weather import (
-    WeatherEntity, 
-    ATTR_FORECAST_CONDITION, 
+    WeatherEntity,
+    WeatherEntityFeature,
+    Forecast,
+    ATTR_FORECAST_CONDITION,
     ATTR_FORECAST_NATIVE_TEMP,
     ATTR_FORECAST_NATIVE_TEMP_LOW,
-    ATTR_FORECAST_TIME, 
+    ATTR_FORECAST_TIME,
     PLATFORM_SCHEMA)
 from homeassistant.const import (
-    ATTR_ATTRIBUTION, 
+    ATTR_ATTRIBUTION,
     CONF_MODE,
     LENGTH_KILOMETERS,
     PRESSURE_HPA,
@@ -72,11 +74,11 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
 
     location = config.get(CONF_LOCATION)
     key = config.get(CONF_KEY)
-    
+
 
     data = WeatherData(hass, location, key)
 
-    #yield from 
+    #yield from
     await data.async_update(dt_util.now())
     async_track_time_interval(hass, data.async_update, TIME_BETWEEN_UPDATES)
 
@@ -91,7 +93,7 @@ class LocalWeather(WeatherEntity):
     _attr_native_pressure_unit = PRESSURE_HPA
     _attr_native_wind_speed_unit = SPEED_KILOMETERS_PER_HOUR
     _attr_native_visibility_unit = LENGTH_KILOMETERS
-    
+
     def __init__(self, data, location):
         """Initialize the  weather."""
         #self._name = None
@@ -105,15 +107,16 @@ class LocalWeather(WeatherEntity):
         self._visibility = None
         self._precipitation = None
         self._forecast = None
+        self._dew = None
+        self._feelslike = None
+        self._cloud =None
 
         self._data = data
         self._updatetime = None
         self._attr_unique_id = 'localweather_'+location
 
-    #@property
-    #def name(self):
-    #    """Return the name of the sensor."""
-    #    return self._object_id
+        #self._attr_supported_features = 0
+        self._attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
 
     @property
     def registry_name(self):
@@ -125,13 +128,31 @@ class LocalWeather(WeatherEntity):
         """attention No polling needed for a demo weather condition."""
         return True
 
+
+
+    @property
+    def native_dew_point(self):
+        """Return the native_dew_point."""
+        return self._dew
+
+    @property
+    def native_apparent_temperature(self):
+        """Return the native_apparent_temperature."""
+        return self._feelslike
+
+    @property
+    def cloud_coverage(self):
+        """Return the cloud_coverage."""
+        return self._cloud
+
+
     @property
     def native_temperature(self):
         """Return the temperature."""
         return self._temperature
 
     @property
-    def temperature_unit(self):
+    def native_temperature_unit(self):
         """Return the unit of measurement."""
         return self._attr_native_temperature_unit
 
@@ -144,7 +165,7 @@ class LocalWeather(WeatherEntity):
     def native_wind_speed(self):
         """Return the wind speed."""
         return self._wind_speed
-    
+
     @property
     def wind_bearing(self):
         """Return the wind speed."""
@@ -154,46 +175,43 @@ class LocalWeather(WeatherEntity):
     def native_pressure(self):
         """Return the pressure."""
         return self._pressure
-    
+
     @property
     def native_visibility(self):
         """Return the visibility."""
         return self._visibility
-    
+
     @property
     def native_precipitation(self):
         """Return the precipitation."""
-        return self._precipitation   
-    
+        return self._precipitation
+
     @property
     def condition(self):
         """Return the weather condition."""
         return [k for k, v in CONDITION_CLASSES.items() if
                 self._condition in v][0]
 
-    @property
-    def attribution(self):
-        """Return the attribution."""
-        return 'Powered by Home Assistant'
+#    @property
+#    def attribution(self):
+#        """Return the attribution."""
+#        return 'Powered by Home Assistant'
 
-    @property
-    def device_state_attributes(self):
-        """设置其它一些属性值."""
-        if self._condition is not None:
-            return {
-                ATTR_ATTRIBUTION: ATTRIBUTION,
-                ATTR_UPDATE_TIME: self._updatetime
-            }
+#    @property
+#    def device_state_attributes(self):
+#        """设置其它一些属性值."""
+#        if self._condition is not None:
+#            return {
+#                ATTR_ATTRIBUTION: ATTRIBUTION,
+#                ATTR_UPDATE_TIME: self._updatetime
+#            }
 
-    @property
-    def forecast(self):
-        """Return the forecast."""
-
+    async def async_forecast_daily(self) -> list[Forecast]:
+        """Return the daily forecast."""
         reftime = datetime.now()
 
         forecast_data = []
         for entry in self._forecast:
-
             data_dict = {
                 ATTR_FORECAST_TIME: reftime.isoformat(),
                 ATTR_FORECAST_CONDITION: entry[0],
@@ -219,6 +237,9 @@ class LocalWeather(WeatherEntity):
         self._wind_bearing = self._data.wind_bearing
         self._visibility = self._data.visibility
         self._precipitation = self._data.precipitation
+        self._dew = self._data.dew
+        self._feelslike = self._data.feelslike
+        self._cloud = self._data.cloud
 
         self._forecast = self._data.forecast
         _LOGGER.info("success to update informations")
@@ -247,14 +268,13 @@ class WeatherData():
         self._wind_bearing = None
         self._visibility = None
         self._precipitation = None
-    
+        self._dew = None
+        self._feelslike = None
+        self._cloud =None
+
         self._forecast = None
         self._updatetime = None
 
-    #@property
-    #def name(self):
-    #    """地点."""
-    #    return self._name
 
     @property
     def condition(self):
@@ -282,26 +302,42 @@ class WeatherData():
         return self._pressure
 
     @property
+    def dew(self):
+        """露点温度"""
+        return self._dew
+
+    @property
+    def feelslike(self):
+        """体感温度"""
+        return self._feelslike
+
+    @property
+    def cloud(self):
+        """云量"""
+        return self._cloud
+
+
+    @property
     def wind_speed(self):
         """风速."""
         return self._wind_speed
-    
+
     @property
     def wind_bearing(self):
         """风向."""
         return self._wind_bearing
-    
+
     @property
     def visibility(self):
         """能见度."""
         return self._visibility
-    
+
     @property
     def precipitation (self):
         """当前小时累计降水量."""
-        return self._precipitation    
-    
-    
+        return self._precipitation
+
+
     @property
     def forecast(self):
         """预报."""
@@ -325,8 +361,8 @@ class WeatherData():
         _LOGGER.info("after time.sleep and before asyncio.sleep")
         asyncio.sleep(40)
         _LOGGER.info("after asyncio.sleep and before yield from asyncio.sleep")
-        #yield from 
-	await asyncio.sleep(40)
+        #yield from
+        await asyncio.sleep(40)
         _LOGGER.info("after yield from asyncio.sleep")
         """
 
@@ -347,44 +383,10 @@ class WeatherData():
             _LOGGER.error("Error while accessing: %s", self._weather_now_url)
             _LOGGER.error("Error while accessing: %s", self._forecast_url)
             return
-        
-        
-       # try:
-       #     session = async_get_clientsession(self._hass)
-       #     with async_timeout.timeout(15):
-       #         response = yield from session.get(
-       #             self._url)
 
-        #except(asyncio.TimeoutError, aiohttp.ClientError):
-        #    _LOGGER.error("Error while accessing: %s", self._url)
-        #    return
 
-        #if response.status != 200:
-        #    _LOGGER.error("Error while accessing: %s, status=%d",
-        #                  self._url,
-        #                  response.status)
-        #    return
 
-        #result = yield from response.json()
-#
-#        if result is None:
-#            _LOGGER.error("Request api Error")
-#            return
-#        elif result["code"] != "200":
-#            _LOGGER.error("Error API return, code=%s, msg=%s",
-#                          result["code"],
-#                          result["msg"])
-#            return
 
-        # 根据http返回的结果，更新数据
-#        all_result = result["daily"]
-#        self._temperature = float(all_result[0]["tempMax"])
-#        self._humidity = int(all_result[0]["humidity"])
-#        self._condition = all_result[0]["textDay"]
-#        self._pressure = int(all_result[0]["pressure"])
-#        self._wind_speed = float(all_result[0]["windSpeedDay"])
-#        self._updatetime = result["updateTime"]
-        
         self._temperature = float(weather["temp"])
         self._humidity = float(weather["humidity"])
         self._pressure = weather["pressure"]
@@ -394,19 +396,18 @@ class WeatherData():
         self._visibility = weather["vis"]
         self._precipitation =  float(weather["precip"])
 
+        self._feelslike = float(weather["feelsLike"])
+        self._dew = float(weather["dew"])
+        self._cloud = int(weather["cloud"])
 
-        #self._windDir = weather["windDir"]
+
+
        # self._windScale = weather["windScale"]
-       # self._windSpeed = weather["windSpeed"]
         self._updatetime = weather["obsTime"]
 
-        
-        
-        
-        
-        
+
         datemsg = forecast["daily"]
-        
+
         forec_cond = []
         for n in range(7):
             for i, j in CONDITION_CLASSES.items():
