@@ -40,13 +40,16 @@ sensor:
     disastermsg: allmsg
  ```    
 两个参数：
+
   disasterlevel的数字表示关注的自然灾害等级，配置3表示关注 >=3级的灾害
+  
     Standard    标准的   1
     Minor       次要的   2
     Moderate    中等的   3
     Major       主要     4
     Severe      严重     5
     Extreme     极端     6
+    
   disastermsg表示灾害预警是否显示灾害的明细信息
     title  只显示标题
     allmsg 显示标题+明细信息
