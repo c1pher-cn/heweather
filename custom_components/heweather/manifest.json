@@ -1,11 +1,11 @@
 {
-  "name": "heweather",
+  "name": "和风天气",
   "domain": "heweather",
-  "version":"1.0.0",
+  "codeowners": ["@_小愚_"],
+  "dependencies": [],
   "documentation": "https://www.bilibili.com/read/cv17792717",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/c1pher-cn/heweather/issues",
-  "dependencies": [],
-  "codeowners": ["@_小愚_"],
-  "requirements": []
+  "requirements": [],
+  "version":"2023.9.0"
 }
