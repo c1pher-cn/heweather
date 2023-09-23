@@ -7,5 +7,5 @@
         "weather"
     ],
     "iot_class": "Cloud Polling",
-    "homeassistant": "2022.10.0"
+    "homeassistant": "2023.9.0"
 }
