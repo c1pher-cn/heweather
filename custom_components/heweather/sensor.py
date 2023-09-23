@@ -64,7 +64,7 @@ OPTIONS = {
     "co": ["Heweather_co", "一氧化碳", "mdi:molecule-co", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
     "o3": ["Heweather_o3", "臭氧", "mdi:weather-cloudy", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
     "qlty": ["Heweather_qlty", "综合空气质量", "mdi:quality-high", " "],
-    "disaster_warn": ["Heweather_disaster_warn", "灾害预警", "mdi:warning-outline", " "],
+    "disaster_warn": ["Heweather_disaster_warn", "灾害预警", "mdi:alert", " "],
 
     "air": ["suggestion_air", "空气污染扩散条件指数", "mdi:air-conditioner", " "],
     "comf": ["suggestion_comf", "舒适度指数", "mdi:human-greeting", " "],
