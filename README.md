@@ -20,7 +20,7 @@
 
 ## 配置方法
 
-1.heweather 天气预报，放在weather里，默认支持7天和24小时预报
+1.天气预报，默认支持7天和24小时预报，放在weather里，
 
 ```
 weather:
@@ -29,22 +29,8 @@ weather:
     key: ABCDE             # api平台申请的key
 ```   
          
-2.heweather（天气情况、空气质量、自然灾害预警），放在sensor里
+2.天气情况、空气质量、自然灾害预警、各种生活指数，放在sensor里
 
-  disasterlevel的数字表示关注的自然灾害等级，配置3表示关注 >=3级的灾害
-  
-    Standard    标准的   1
-    Minor       次要的   2
-    Moderate    中等的   3
-    Major       主要     4
-    Severe      严重     5
-    Extreme     极端     6
-
-  disastermsg表示灾害预警是否显示灾害的明细信息
-  
-    title  只显示标题
-    allmsg 显示标题+明细信息
-    
 ```
 sensor:
   - platform: heweather
@@ -53,6 +39,18 @@ sensor:
     disasterlevel: 3
     disastermsg: allmsg
  ```    
+两个参数：
+  disasterlevel的数字表示关注的自然灾害等级，配置3表示关注 >=3级的灾害
+    Standard    标准的   1
+    Minor       次要的   2
+    Moderate    中等的   3
+    Major       主要     4
+    Severe      严重     5
+    Extreme     极端     6
+  disastermsg表示灾害预警是否显示灾害的明细信息
+    title  只显示标题
+    allmsg 显示标题+明细信息
+    
 
 
 ## 自动化配置实例
