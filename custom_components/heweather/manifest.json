@@ -1,6 +1,6 @@
 {
-  "name": "和风天气",
   "domain": "heweather",
+  "name": "和风天气",
   "codeowners": ["@_小愚_"],
   "dependencies": [],
   "documentation": "https://www.bilibili.com/read/cv17792717",
