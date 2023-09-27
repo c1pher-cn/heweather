@@ -7,11 +7,11 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  validate:
+  hacs:
+    name: HACS Action
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v2"
-      - name: HACS validation
+      - name: HACS Action
         uses: "hacs/action@main"
         with:
           category: "integration"
