@@ -54,7 +54,7 @@ OPTIONS = {
     "pressure": ["Heweather_pressure", "大气压强", "mdi:thermometer", PRESSURE_HPA],
     "vis": ["Heweather_vis", "能见度", "mdi:thermometer", LENGTH_KILOMETERS],
     "cloud": ["Heweather_cloud", "云量", "mdi:cloud-percent", PERCENTAGE],
-    "primary": ["Heweather_primary", "空空气质量的主要污染物", "mdi:weather-dust", " "],
+    "primary": ["Heweather_primary", "空气质量的主要污染物", "mdi:weather-dust", " "],
     "category": ["Heweather_category", "空气质量指数级别", "mdi:walk", " "],
     "level": ["Heweather_level", "空气质量指数等级", "mdi:walk", " "],
     "pm25": ["Heweather_pm25", "PM2.5", "mdi:walk", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
