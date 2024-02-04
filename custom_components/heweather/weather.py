@@ -227,8 +227,11 @@ class HeWeather(WeatherEntity):
     @property
     def condition(self):
         """Return the weather condition."""
-        return [k for k, v in CONDITION_CLASSES.items() if
-                self._condition in v][0]
+        if self._condition:
+            match_list = [k for k, v in CONDITION_CLASSES.items() if self._condition in v]
+            return match_list[0] if match_list else 'unknown'
+        else:
+            return 'unknown'
 
 #    @property
 #    def attribution(self):
