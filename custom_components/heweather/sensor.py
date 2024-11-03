@@ -17,18 +17,14 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
     ATTR_ATTRIBUTION, ATTR_FRIENDLY_NAME,
     #TEMP_CELSIUS,
-    UnitOfTemperature.CELSIUS,
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
-    PERCENTAGE,
+    PERCENTAGE
     #PRECIPITATION_MILLIMETERS_PER_HOUR,
-    UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
     #SPEED_KILOMETERS_PER_HOUR,
-    UnitOfSpeed.KILOMETERS_PER_HOUR,
     #PRESSURE_HPA,
-    UnitOfPressure.HPA,
     #LENGTH_KILOMETERS
-    UnitOfLength.KILOMETERS 
 )
+from homeassistant.helpers import UnitOfLength  
 from homeassistant.helpers.entity import Entity
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.dt as dt_util
