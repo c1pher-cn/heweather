@@ -27,15 +27,15 @@ from homeassistant.const import (
     ATTR_ATTRIBUTION,
     CONF_MODE,
     #LENGTH_KILOMETERS,
-    UnitOfLength.KILOMETERS,
+    UnitOfLength,
     #PRESSURE_HPA,
-    UnitOfPressure.HPA,
+    UnitOfPressure,
     #SPEED_KILOMETERS_PER_HOUR,
-    UnitOfSpeed.KILOMETERS_PER_HOUR,
+    UnitOfSpeed,
     #PRECIPITATION_MILLIMETERS_PER_HOUR,
-    UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+    UnitOfVolumetricFlux,
     #TEMP_CELSIUS
-    UnitOfTemperature.CELSIUS
+    UnitOfTemperature
 )
 
 import homeassistant.helpers.config_validation as cv
