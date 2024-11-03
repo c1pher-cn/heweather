@@ -26,11 +26,16 @@ from homeassistant.components.weather import (
 from homeassistant.const import (
     ATTR_ATTRIBUTION,
     CONF_MODE,
-    LENGTH_KILOMETERS,
-    PRESSURE_HPA,
-    SPEED_KILOMETERS_PER_HOUR,
-    PRECIPITATION_MILLIMETERS_PER_HOUR,
-    TEMP_CELSIUS
+    #LENGTH_KILOMETERS,
+    UnitOfLength.KILOMETERS,
+    #PRESSURE_HPA,
+    UnitOfPressure.HPA,
+    #SPEED_KILOMETERS_PER_HOUR,
+    UnitOfSpeed.KILOMETERS_PER_HOUR,
+    #PRECIPITATION_MILLIMETERS_PER_HOUR,
+    UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+    #TEMP_CELSIUS
+    UnitOfTemperature.CELSIUS
 )
 
 import homeassistant.helpers.config_validation as cv
@@ -123,11 +128,11 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
 class HeWeather(WeatherEntity):
     """Representation of a weather condition."""
 
-    _attr_native_temperature_unit = TEMP_CELSIUS
-    _attr_native_precipitation_unit = PRECIPITATION_MILLIMETERS_PER_HOUR
-    _attr_native_pressure_unit = PRESSURE_HPA
-    _attr_native_wind_speed_unit = SPEED_KILOMETERS_PER_HOUR
-    _attr_native_visibility_unit = LENGTH_KILOMETERS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_precipitation_unit = UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR
+    _attr_native_pressure_unit = UnitOfPressure.HPA
+    _attr_native_wind_speed_unit = UnitOfSpeed.KILOMETERS_PER_HOUR
+    _attr_native_visibility_unit = UnitOfLength.KILOMETERS
 
     def __init__(self, data, location):
         """Initialize the  weather."""
@@ -361,7 +366,7 @@ class WeatherData():
     @property
     def temperature_unit(self):
         """温度单位."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
     def humidity(self):
