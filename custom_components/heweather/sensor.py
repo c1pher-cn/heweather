@@ -16,13 +16,18 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
     ATTR_ATTRIBUTION, ATTR_FRIENDLY_NAME,
-    TEMP_CELSIUS,
+    #TEMP_CELSIUS,
+    UnitOfTemperature.CELSIUS,
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     PERCENTAGE,
-    PRECIPITATION_MILLIMETERS_PER_HOUR,
-    SPEED_KILOMETERS_PER_HOUR,
-    PRESSURE_HPA,
-    LENGTH_KILOMETERS
+    #PRECIPITATION_MILLIMETERS_PER_HOUR,
+    UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+    #SPEED_KILOMETERS_PER_HOUR,
+    UnitOfSpeed.KILOMETERS_PER_HOUR,
+    #PRESSURE_HPA,
+    UnitOfPressure.HPA,
+    #LENGTH_KILOMETERS
+    UnitOfLength.KILOMETERS 
 )
 from homeassistant.helpers.entity import Entity
 import homeassistant.helpers.config_validation as cv
@@ -42,17 +47,17 @@ CONF_DISASTERMSG = "disastermsg"
 CONF_SENSOR_LIST = ["air","comf","cw","drsg","flu","sport","trav","uv","sunglass","guomin","liangshai","jiaotong","fangshai","kongtiao","disaster_warn","temprature","humidity","category","feelsLike","text","windDir","windScale","windSpeed","pressure","vis","cloud","dew","precip","qlty","level","primary","pm25","pm10","co","so2","no2","o3"]
 
 OPTIONS = {
-    "temprature": ["Heweather_temperature", "室外温度", "mdi:thermometer", TEMP_CELSIUS],
+    "temprature": ["Heweather_temperature", "室外温度", "mdi:thermometer", UnitOfTemperature.CELSIUS],
     "humidity": ["Heweather_humidity", "室外湿度", "mdi:water-percent", PERCENTAGE],
-    "feelsLike": ["Heweather_feelsLike", "体感温度", "mdi:thermometer", TEMP_CELSIUS],
+    "feelsLike": ["Heweather_feelsLike", "体感温度", "mdi:thermometer", UnitOfTemperature.CELSIUS],
     "text": ["Heweather_text", "天气描述", "mdi:thermometer", ' '],
-    "precip": ["Heweather_precip", "小时降水量", "mdi:weather-rainy", PRECIPITATION_MILLIMETERS_PER_HOUR],
+    "precip": ["Heweather_precip", "小时降水量", "mdi:weather-rainy", UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR],
     "windDir": ["Heweather_windDir", "风向", "mdi:windsock", ' '],
     "windScale": ["Heweather_windScale", "风力等级", "mdi:weather-windy", ' '],
-    "windSpeed": ["Heweather_windSpeed", "风速", "mdi:weather-windy", SPEED_KILOMETERS_PER_HOUR],
+    "windSpeed": ["Heweather_windSpeed", "风速", "mdi:weather-windy", UnitOfSpeed.KILOMETERS_PER_HOUR],
     "dew": ["Heweather_dew", "露点温度", "mdi:thermometer-water", ' '],
-    "pressure": ["Heweather_pressure", "大气压强", "mdi:thermometer", PRESSURE_HPA],
-    "vis": ["Heweather_vis", "能见度", "mdi:thermometer", LENGTH_KILOMETERS],
+    "pressure": ["Heweather_pressure", "大气压强", "mdi:thermometer", UnitOfPressure.HPA],
+    "vis": ["Heweather_vis", "能见度", "mdi:thermometer", UnitOfLength.KILOMETERS],
     "cloud": ["Heweather_cloud", "云量", "mdi:cloud-percent", PERCENTAGE],
     "primary": ["Heweather_primary", "空气质量的主要污染物", "mdi:weather-dust", " "],
     "category": ["Heweather_category", "空气质量指数级别", "mdi:walk", " "],
