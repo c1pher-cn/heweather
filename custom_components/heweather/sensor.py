@@ -41,6 +41,7 @@ LIFESUGGESTION_TIME_BETWEEN_UPDATES = timedelta(seconds=7200)
 
 CONF_OPTIONS = "options"
 CONF_LOCATION = "location"
+CONF_HOST = "host"
 CONF_KEY = "key"
 CONF_DISASTERLEVEL = "disasterlevel"
 CONF_DISASTERMSG = "disastermsg"
@@ -107,6 +108,7 @@ ATTRIBUTION = "来自和风天气的天气数据"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_LOCATION): cv.string,
+    vol.Required(CONF_HOST): cv.string,
     vol.Required(CONF_KEY): cv.string,
     vol.Required(CONF_DISASTERLEVEL): cv.string,
     vol.Required(CONF_DISASTERMSG): cv.string,
@@ -120,12 +122,13 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
     _LOGGER.info("setup platform sensor.Heweather...")
 
     location = config.get(CONF_LOCATION)
+    host = config.get(CONF_HOST)
     key = config.get(CONF_KEY)
     disastermsg = config.get(CONF_DISASTERMSG)
     disasterlevel = config.get(CONF_DISASTERLEVEL)
     # 这里通过 data 实例化class weatherdata，并传入调用API所需信息
-    weather_data = WeatherData(hass, location, key, disastermsg, disasterlevel)
-    suggestion_data = SuggestionData(hass, location, key)
+    weather_data = WeatherData(hass, location, host, key, disastermsg, disasterlevel)
+    suggestion_data = SuggestionData(hass, location, host, key)
 
     await weather_data.async_update(dt_util.now())
     async_track_time_interval(hass, weather_data.async_update, WEATHER_TIME_BETWEEN_UPDATES)
@@ -299,7 +302,7 @@ class HeweatherWeatherSensor(Entity):
 class WeatherData(object):
     """天气相关的数据，存储在这个类中."""
 
-    def __init__(self, hass, location, key, disastermsg, disasterlevel):
+    def __init__(self, hass, location, host, key, disastermsg, disasterlevel):
         """初始化函数."""
         self._hass = hass
         self._disastermsg = disastermsg
@@ -307,9 +310,9 @@ class WeatherData(object):
         #disastermsg, disasterlevel
 
        # self._url = "https://free-api.heweather.com/s6/weather/now"
-        self._weather_now_url = "https://devapi.qweather.com/v7/weather/now?location="+location+"&key="+key
-        self._air_now_url = "https://devapi.qweather.com/v7/air/now?location="+location+"&key="+key
-        self._disaster_warn_url = "https://devapi.qweather.com/v7/warning/now?location="+location+"&key="+key
+        self._weather_now_url = "https://" + host +"/v7/weather/now?location="+location+"&key="+key
+        self._air_now_url = "https://" + host +"/v7/air/now?location="+location+"&key="+key
+        self._disaster_warn_url = "https://" + host +"/v7/warning/now?location="+location+"&key="+key
         self._params = {"location": location,
                         "key": key}
         self._temprature = None
@@ -536,11 +539,11 @@ class WeatherData(object):
 class SuggestionData(object):
     """天气相关建议的数据，存储在这个类中."""
 
-    def __init__(self, hass, location, key):
+    def __init__(self, hass, location, host, key):
         """初始化函数."""
         self._hass = hass
 
-        self._url = "https://devapi.qweather.com/v7/indices/1d?location="+location+"&key="+key+"&type=0"
+        self._url = "https://" + host + "/v7/indices/1d?location="+location+"&key="+key+"&type=0"
         self._params = {"location": location,
                         "key": key,
                         "type": 0

@@ -8,9 +8,9 @@
 
 1.使用和风官方apiv7版本
 
-2.必须申请开发者账号里的免费api，请务必升级到开发者账号（免费，但要提交身份证审核，api权限会比普通用户高一些）https://console.qweather.com/#/console
+2.必须申请开发者账号里的免费api，请务必升级到开发者账号（免费，api权限会比普通用户高一些）https://console.qweather.com/#/console
 
-3.appkey申请需要先[创建应用](https://console.qweather.com/#/apps),后选添加数据key，选wabapi即可
+3.appkey申请需要先[创建项目](https://console.qweather.com/project?lang=zh),后选创建凭据，选API KEY即可
 
     国内的城市区域location关系：https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
 
@@ -25,8 +25,9 @@
 ```
 weather:
   - platform: heweather
-    location: 101210106    # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
-    key: ABCDE             # api平台申请的key
+    location: 101210106        # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
+    host: devapi.qweather.com  # 开发者信息中的API Host
+    key: ABCDE                 # api平台申请的key
 ```   
          
 2.天气情况、空气质量、自然灾害预警、各种生活指数，放在sensor里
@@ -34,8 +35,9 @@ weather:
 ```
 sensor:
   - platform: heweather
-    location: 101210106     # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
-    key: ABCDE              # api平台申请的key
+    location: 101210106        # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
+    host: devapi.qweather.com  # 开发者信息中的API Host
+    key: ABCDE                 # api平台申请的key
     disasterlevel: 3
     disastermsg: allmsg
  ```    
