@@ -331,9 +331,9 @@ class WeatherData():
         self._hass = hass
 
         #self._url = "https://free-api.heweather.com/s6/weather/forecast?location="+location+"&key="+key
-        self._forecast_url = "https://" + host + "/v7/weather/7d?location="+location+"&key="+key
-        self._weather_now_url = "https://" + host + "/v7/weather/now?location="+location+"&key="+key
-        self._forecast_hourly_url = "https://" + host + "/v7/weather/24h?location="+location+"&key="+key
+        self._forecast_url = "https://"+host+"/v7/weather/7d?location="+location+"&key="+key
+        self._weather_now_url = "https://"+host+"/v7/weather/now?location="+location+"&key="+key
+        self._forecast_hourly_url = "https://"+host+"/v7/weather/24h?location="+location+"&key="+key
         self._params = {"location": location,
                         "key": key}
 

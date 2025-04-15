@@ -310,9 +310,9 @@ class WeatherData(object):
         #disastermsg, disasterlevel
 
        # self._url = "https://free-api.heweather.com/s6/weather/now"
-        self._weather_now_url = "https://" + host +"/v7/weather/now?location="+location+"&key="+key
-        self._air_now_url = "https://" + host +"/v7/air/now?location="+location+"&key="+key
-        self._disaster_warn_url = "https://" + host +"/v7/warning/now?location="+location+"&key="+key
+        self._weather_now_url = "https://"+host+"/v7/weather/now?location="+location+"&key="+key
+        self._air_now_url = "https://"+host+"/v7/air/now?location="+location+"&key="+key
+        self._disaster_warn_url = "https://"+host+"/v7/warning/now?location="+location+"&key="+key
         self._params = {"location": location,
                         "key": key}
         self._temprature = None
@@ -543,7 +543,7 @@ class SuggestionData(object):
         """初始化函数."""
         self._hass = hass
 
-        self._url = "https://" + host + "/v7/indices/1d?location="+location+"&key="+key+"&type=0"
+        self._url = "https://"+host+"/v7/indices/1d?location="+location+"&key="+key+"&type=0"
         self._params = {"location": location,
                         "key": key,
                         "type": 0
