@@ -122,10 +122,11 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
    host = config.get(CONF_HOST)
    key = config.get(CONF_KEY)
    data = WeatherData(hass, location, host, key)
-   await data.async_update(dt_util.now())
-   async_track_time_interval(hass, data.async_update, TIME_BETWEEN_UPDATES)
+   weather = HeWeather(data, location)
+   await weather.async_update(dt_util.now())
+   async_track_time_interval(hass, weather.async_update, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
 
-   async_add_devices([HeWeather(data, location)], True)
+   async_add_devices([weather], True)
 
 
 class HeWeather(WeatherEntity):
@@ -303,6 +304,8 @@ class HeWeather(WeatherEntity):
     #@asyncio.coroutine
     async def async_update(self, now=DEFAULT_TIME):
         """update函数变成了async_update."""
+        await self._data.async_update(now)
+
         self._updatetime = self._data.updatetime
         #self._name = self._data.name
         self._condition = self._data.condition
@@ -320,6 +323,8 @@ class HeWeather(WeatherEntity):
 
         self._forecast = self._data.forecast
         self._forecast_hourly = self._data.forecast_hourly
+
+        await self.async_update_listeners(['daily', 'hourly'])
         _LOGGER.info("success to update informations")
 
 
