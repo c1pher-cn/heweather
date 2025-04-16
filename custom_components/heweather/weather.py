@@ -123,8 +123,8 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
    key = config.get(CONF_KEY)
    data = WeatherData(hass, location, host, key)
    weather = HeWeather(data, location)
-   await weather.async_update(dt_util.now())
-   async_track_time_interval(hass, weather.async_update, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+   await weather.async_update_data(dt_util.now())
+   async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
 
    async_add_devices([weather], True)
 
@@ -258,7 +258,7 @@ class HeWeather(WeatherEntity):
 
     async def async_forecast_daily(self) -> list[Forecast]:
         """Return the daily forecast."""
-        reftime = datetime.now()
+        reftime = self._data._updatetime
 
         forecast_data = []
         for entry in self._forecast:
@@ -276,7 +276,7 @@ class HeWeather(WeatherEntity):
 
     async def async_forecast_hourly(self) -> list[Forecast]:
         """Return the daily forecast."""
-        reftime = datetime.now()
+        reftime = self._data._updatetime
 
         forecast_hourly_data = []
         for entry in self._forecast_hourly:
@@ -304,8 +304,6 @@ class HeWeather(WeatherEntity):
     #@asyncio.coroutine
     async def async_update(self, now=DEFAULT_TIME):
         """update函数变成了async_update."""
-        await self._data.async_update(now)
-
         self._updatetime = self._data.updatetime
         #self._name = self._data.name
         self._condition = self._data.condition
@@ -323,9 +321,11 @@ class HeWeather(WeatherEntity):
 
         self._forecast = self._data.forecast
         self._forecast_hourly = self._data.forecast_hourly
-
-        await self.async_update_listeners(['daily', 'hourly'])
         _LOGGER.info("success to update informations")
+
+    async def async_update_data(self, now=DEFAULT_TIME):
+        await self._data.async_update(now)
+        await self.async_update_listeners(['daily', 'hourly'])
 
 
 class WeatherData():
@@ -497,7 +497,7 @@ class WeatherData():
 
 
        # self._windScale = weather["windScale"]
-        self._updatetime = weather["obsTime"]
+        self._updatetime = datetime.strptime(weather["obsTime"], "%Y-%m-%dT%H:%M%z")
 
 
         datemsg = forecast["daily"]
