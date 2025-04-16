@@ -108,7 +108,7 @@ ATTRIBUTION = "来自和风天气的天气数据"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_LOCATION): cv.string,
-    vol.Required(CONF_HOST): cv.string,
+    vol.Required(CONF_HOST, default="devapi.qweather.com"): cv.string,
     vol.Required(CONF_KEY): cv.string,
     vol.Required(CONF_DISASTERLEVEL): cv.string,
     vol.Required(CONF_DISASTERMSG): cv.string,
