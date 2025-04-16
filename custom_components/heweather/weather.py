@@ -49,6 +49,7 @@ HOURLY_TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
 DEFAULT_TIME = dt_util.now()
 
 CONF_LOCATION = "location"
+CONF_HOST = "host"
 CONF_KEY = "key"
 
 CONDITION_CLASSES = {
@@ -73,6 +74,7 @@ ATTRIBUTION = "来自和风天气的天气数据"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_LOCATION): cv.string,
+    vol.Required(CONF_HOST): cv.string,
     vol.Required(CONF_KEY): cv.string,
 })
 # # 集成安装
@@ -117,8 +119,9 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
    _LOGGER.info("setup platform weather.Heweather...")
 
    location = config.get(CONF_LOCATION)
+   host = config.get(CONF_HOST)
    key = config.get(CONF_KEY)
-   data = WeatherData(hass, location, key)
+   data = WeatherData(hass, location, host, key)
    await data.async_update(dt_util.now())
    async_track_time_interval(hass, data.async_update, TIME_BETWEEN_UPDATES)
 
@@ -323,14 +326,14 @@ class HeWeather(WeatherEntity):
 class WeatherData():
     """天气相关的数据，存储在这个类中."""
 
-    def __init__(self, hass, location, key):
+    def __init__(self, hass, location, host, key):
         """初始化函数."""
         self._hass = hass
 
         #self._url = "https://free-api.heweather.com/s6/weather/forecast?location="+location+"&key="+key
-        self._forecast_url = "https://devapi.qweather.com/v7/weather/7d?location="+location+"&key="+key
-        self._weather_now_url = "https://devapi.qweather.com/v7/weather/now?location="+location+"&key="+key
-        self._forecast_hourly_url = "https://devapi.qweather.com/v7/weather/24h?location="+location+"&key="+key
+        self._forecast_url = "https://"+host+"/v7/weather/7d?location="+location+"&key="+key
+        self._weather_now_url = "https://"+host+"/v7/weather/now?location="+location+"&key="+key
+        self._forecast_hourly_url = "https://"+host+"/v7/weather/24h?location="+location+"&key="+key
         self._params = {"location": location,
                         "key": key}
 
