@@ -1,0 +1,46 @@
+{
+    "config": {
+        "flow_title": "和风天气",
+        "step": {
+            "auth_method_config": {
+                "title": "身份认证方式",
+                "description": "请选择使用的身份认证方式。\r\n**注意：根据和风天气官方说明，从2027年1月1日起，使用API KEY认证方式都将受请求量的限制。**",
+                "data": {
+                    "auth_method": "认证方式"
+                }
+            },
+            "auth_apikey_config": {
+                "title": "API KEY认证",
+                "description": "请输入和风天气的API KEY和API Host。\r\n**注意：根据和风天气官方说明，从2027年1月1日起，使用API KEY认证方式都将受请求量的限制。**",
+                "data": {
+                    "key": "API KEY",
+                    "host": "API Host"
+                }
+            },
+            "auth_jwt_config": {
+                "title": "JWT认证",
+                "description": "请将公钥\n```\n{jwt_pubkey}\n```上传至和风天气开发控制台，并输入对应的项目ID、凭据ID和API Host。",
+                "data": {
+                    "jwt_sub": "项目ID",
+                    "jwt_kid": "凭据ID",
+                    "host": "API Host"
+                }
+            },
+            "location_config": {
+                "title": "位置设置",
+                "description": "输入区域代码LocationID",
+                "data": {
+                    "location": "区域代码"
+                }
+            },
+            "disaster_config": {
+                "title": "灾害预警",
+                "description": "请设置灾害预警的相关参数。",
+                "data": {
+                    "disasterlevel": "预警级别",
+                    "disastermsg": "预警类型"
+                }
+            }
+        }
+    }
+}

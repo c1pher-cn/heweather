@@ -9,6 +9,9 @@ import voluptuous as vol
 
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from homeassistant.components.weather import (
     WeatherEntity,
@@ -41,6 +44,16 @@ from homeassistant.const import (
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.dt as dt_util
 
+from .heweather.const import (
+    CONF_LOCATION,
+    CONF_HOST,
+    CONF_KEY,
+    DEFAULT_HOST,
+    CONDITION_CLASSES,
+    ATTR_UPDATE_TIME,
+    ATTRIBUTION
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
@@ -48,33 +61,9 @@ HOURLY_TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
 
 DEFAULT_TIME = dt_util.now()
 
-CONF_LOCATION = "location"
-CONF_HOST = "host"
-CONF_KEY = "key"
-
-CONDITION_CLASSES = {
-    'sunny': ["晴"],
-    'cloudy': ["多云"],
-    'partlycloudy': ["少云", "晴间多云", "阴"],
-    'windy': ["有风", "微风", "和风", "清风"],
-    'windy-variant': ["强风", "劲风", "疾风", "大风", "烈风"],
-    'hurricane': ["飓风", "龙卷风", "热带风暴", "狂暴风", "风暴"],
-    'rainy': ["雨", "毛毛雨", "细雨", "小雨", "小到中雨", "中雨", "中到大雨", "大雨", "大到暴雨", "阵雨", "极端降雨", "冻雨"],
-    'pouring': ["暴雨", "暴雨到大暴雨", "大暴雨", "大暴雨到特大暴雨", "特大暴雨", "强阵雨"],
-    'lightning-rainy': ["雷阵雨", "强雷阵雨"],
-    'fog': ["雾", "薄雾", "霾", "浓雾", "强浓雾", "中度霾", "重度霾", "严重霾", "大雾", "特强浓雾"],
-    'hail': ["雷阵雨伴有冰雹"],
-    'snowy': ["小雪", "小到中雪", "中雪", "中到大雪", "大雪", "大到暴雪", "暴雪", "阵雪"],
-    'snowy-rainy': ["雨夹雪", "雨雪天气", "阵雨夹雪"],
-    'exceptional': ["扬沙", "浮尘", "沙尘暴", "强沙尘暴", "未知"],
-}
-
-ATTR_UPDATE_TIME = "更新时间"
-ATTRIBUTION = "来自和风天气的天气数据"
-
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_LOCATION): cv.string,
-    vol.Required(CONF_HOST, default="devapi.qweather.com"): cv.string,
+    vol.Required(CONF_HOST, default=DEFAULT_HOST): cv.string,
     vol.Required(CONF_KEY): cv.string,
 })
 # # 集成安装
@@ -113,20 +102,34 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 #     _LOGGER.debug('[%s]刷新间隔时间: %s 分钟', name, update_interval_minutes)
 #     async_add_entities([HeWeather(data, location)], True)
 
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+    """Set up the hefeng weather."""
+    _LOGGER.info("setup platform weather.Heweather...")
+
+    location = config_entry.data.get(CONF_LOCATION)
+    host = config_entry.data.get(CONF_HOST)
+    key = config_entry.data.get(CONF_KEY)
+    data = WeatherData(hass, location, host, key)
+    weather = HeWeather(data, location)
+    await weather.async_update_data(dt_util.now())
+    async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+
+    async_add_entities([weather], True)
+
 #@asyncio.coroutine
 async def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
-   """Set up the hefeng weather."""
-   _LOGGER.info("setup platform weather.Heweather...")
+    """Set up the hefeng weather."""
+    _LOGGER.info("setup platform weather.Heweather...")
 
-   location = config.get(CONF_LOCATION)
-   host = config.get(CONF_HOST)
-   key = config.get(CONF_KEY)
-   data = WeatherData(hass, location, host, key)
-   weather = HeWeather(data, location)
-   await weather.async_update_data(dt_util.now())
-   async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
-
-   async_add_devices([weather], True)
+    location = config.get(CONF_LOCATION)
+    host = config.get(CONF_HOST)
+    key = config.get(CONF_KEY)
+    data = WeatherData(hass, location, host, key)
+    weather = HeWeather(data, location)
+    await weather.async_update_data(dt_util.now())
+    async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+ 
+    async_add_devices([weather], True)
 
 
 class HeWeather(WeatherEntity):
@@ -258,6 +261,7 @@ class HeWeather(WeatherEntity):
 
     async def async_forecast_daily(self) -> list[Forecast]:
         """Return the daily forecast."""
+        # reftime = datetime.now()
         reftime = self._data._updatetime
 
         forecast_data = []
@@ -276,6 +280,7 @@ class HeWeather(WeatherEntity):
 
     async def async_forecast_hourly(self) -> list[Forecast]:
         """Return the daily forecast."""
+        # reftime = datetime.now()
         reftime = self._data._updatetime
 
         forecast_hourly_data = []
