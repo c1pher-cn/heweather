@@ -1,5 +1,8 @@
 {
     "config": {
+        "abort": {
+            "single_instance_allowed": "只允许配置一个和风天气集成条目。"
+        },
         "flow_title": "和风天气",
         "step": {
             "auth_method_config": {

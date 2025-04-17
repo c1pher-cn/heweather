@@ -78,6 +78,11 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: Optional[dict] = None
     ):
+        if self._async_current_entries():
+            return self.async_abort(reason="single_instance_allowed")
+        if self.hass.data.get(DOMAIN):
+            return self.async_abort(reason="single_instance_allowed")
+
         self.hass.data.setdefault(DOMAIN, {})
         if not self._storage_path:
             self._storage_path = self.hass.config.path('.storage', DOMAIN)
