@@ -2,10 +2,14 @@ DOMAIN: str = 'heweather'
 DEFAULT_NAME: str = '和风天气'
 
 # config platform
+CONF_AUTH_METHOD = "auth_method"
 CONF_OPTIONS = "options"
 CONF_LOCATION = "location"
 CONF_HOST = "host"
 CONF_KEY = "key"
+CONF_STORAGE_PATH = "storage_path"
+CONF_JWT_SUB = "auth_jwt_sub"
+CONF_JWT_KID = "auth_jwt_kid"
 
 DEFAULT_HOST = "devapi.qweather.com"
 
@@ -69,3 +73,5 @@ DISASTER_LEVEL = {
 ATTR_UPDATE_TIME = "更新时间"
 ATTR_SUGGESTION = "建议"
 ATTRIBUTION = "来自和风天气的天气数据"
+
+CERT_NAME_PREFIX = "heweather_ed25519_"

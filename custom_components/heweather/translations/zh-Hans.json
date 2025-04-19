@@ -22,7 +22,7 @@
             },
             "auth_jwt_config": {
                 "title": "JWT认证",
-                "description": "请将公钥\n```\n{jwt_pubkey}\n```上传至和风天气开发控制台，并输入对应的项目ID、凭据ID和API Host。",
+                "description": "请将公钥\n```\n{jwt_pubkey}\n```\n上传至和风天气开发控制台，并输入对应的项目ID、凭据ID和API Host。",
                 "data": {
                     "jwt_sub": "项目ID",
                     "jwt_kid": "凭据ID",

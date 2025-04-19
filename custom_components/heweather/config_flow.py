@@ -24,9 +24,13 @@ import homeassistant.helpers.config_validation as cv
 from .heweather.const import (
     DOMAIN,
     DEFAULT_NAME,
+    CONF_AUTH_METHOD,
     CONF_LOCATION,
     CONF_HOST,
     CONF_KEY,
+    CONF_STORAGE_PATH,
+    CONF_JWT_SUB,
+    CONF_JWT_KID,
     CONF_DISASTERLEVEL,
     CONF_DISASTERMSG,
     DEFAULT_HOST,
@@ -38,7 +42,7 @@ from .heweather.const import (
     DISASTER_MSG
 )
 
-from .heweather.heweather_storage import HeWeatherStorage
+from .heweather.heweather_cert import HeWeatherCert
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,7 +50,7 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     MINOR_VERSION = 1
     _main_loop: asyncio.AbstractEventLoop
-    _heweather_storage: HeWeatherStorage
+    _heweather_cert: HeWeatherCert
 
     _storage_path: str
     _auth_method: str
@@ -86,14 +90,15 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.hass.data.setdefault(DOMAIN, {})
         if not self._storage_path:
             self._storage_path = self.hass.config.path('.storage', DOMAIN)
-        # HeWeather Storage
-        self._heweather_storage = self.hass.data[DOMAIN].get('heweather_storage', None)
-        if not self._heweather_storage:
-            self._heweather_storage = HeWeatherStorage(
-                root_path=self._storage_path, loop=self._main_loop)
-            self.hass.data[DOMAIN]['heweather_storage'] = self._heweather_storage
+        # HeWeather Certification
+        self._heweather_cert = self.hass.data[DOMAIN].get('heweather_cert', None)
+        if not self._heweather_cert:
+            self._heweather_cert = HeWeatherCert(
+                root_path=self._storage_path,
+                loop=self._main_loop)
+            self.hass.data[DOMAIN]['heweather_cert'] = self._heweather_cert
             _LOGGER.info(
-                'async_step_user, create heweather storage, %s', self._storage_path)
+                'async_step_user, create heweather cert, %s', self._storage_path)
             
         return await self.async_step_auth_method_config(user_input)
 
@@ -101,7 +106,8 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: Optional[dict] = None
     ):
         if user_input:
-            if user_input.get("auth_method", None) == "key":
+            self._auth_method = user_input.get("auth_method", self._auth_method)
+            if self._auth_method == "key":
                 return await self.async_step_auth_apikey_config()
             else:
                 return await self.async_step_auth_jwt_config()
@@ -155,11 +161,19 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: Optional[dict] = None
     ):
         if user_input:
-            self._auth_method = user_input.get("auth_method", None)
-            if self._auth_method == "key":
-                return await self.async_step_key()
+            if user_input.get("jwt_sub", self._key) == "":
+                return await self.__show_auth_apikey_config_form("jwt_sub is empty")
+            elif user_input.get("jwt_kid", None) == "":
+                return await self.__show_auth_apikey_config_form("jwt_kid is empty")
+            elif user_input.get("host", None) == "":
+                return await self.__show_auth_apikey_config_form("host is empty")
             else:
-                return await self.async_step_jwt()
+                self._jwt_sub = user_input.get("jwt_sub", self._jwt_sub)
+                self._jwt_kid = user_input.get("jwt_kid", self._jwt_kid)
+                self._host = user_input.get("host", self._host)
+                return await self.async_step_location_config()
+        await self._heweather_cert.gen_key_async()
+        self._jwt_pubkey = await self._heweather_cert.get_pub_key_async()
         return await self.__show_auth_jwt_config_form("")
 
     async def __show_auth_jwt_config_form(self, reason: str):
@@ -237,10 +251,11 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_create_entry(
             title=DEFAULT_NAME,
             data={
-                "auth_method": self._auth_method,
+                CONF_AUTH_METHOD: self._auth_method,
                 CONF_KEY: self._key,
-                "auth_jwt_sub": self._jwt_sub,
-                "auth_jwt_kid": self._jwt_kid,
+                CONF_STORAGE_PATH: self._storage_path,
+                CONF_JWT_SUB: self._jwt_sub,
+                CONF_JWT_KID: self._jwt_kid,
                 CONF_HOST: self._host,
                 CONF_LOCATION: self._location,
                 CONF_DISASTERLEVEL: self._disasterlevel,

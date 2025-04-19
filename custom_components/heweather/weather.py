@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+import time
 
 import asyncio
 import async_timeout
@@ -45,9 +46,13 @@ import homeassistant.helpers.config_validation as cv
 import homeassistant.util.dt as dt_util
 
 from .heweather.const import (
+    DOMAIN,
+    CONF_AUTH_METHOD,
     CONF_LOCATION,
     CONF_HOST,
     CONF_KEY,
+    CONF_JWT_SUB,
+    CONF_JWT_KID,
     DEFAULT_HOST,
     CONDITION_CLASSES,
     ATTR_UPDATE_TIME,
@@ -108,8 +113,17 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 
     location = config_entry.data.get(CONF_LOCATION)
     host = config_entry.data.get(CONF_HOST)
-    key = config_entry.data.get(CONF_KEY)
-    data = WeatherData(hass, location, host, key)
+    auth_method = config_entry.data.get(CONF_AUTH_METHOD)
+    if auth_method == "key":
+        key = config_entry.data.get(CONF_KEY)
+        data = WeatherData(hass, location, host, key)
+    else:
+        # HeWeather Certification
+        heweather_cert = hass.data[DOMAIN].get('heweather_cert', None)
+        jwt_sub = config_entry.data.get(CONF_JWT_SUB)
+        jwt_kid = config_entry.data.get(CONF_JWT_KID)
+        data = WeatherData(hass, location, host, heweather_cert, jwt_sub, jwt_kid)
+
     weather = HeWeather(data, location)
     await weather.async_update_data(dt_util.now())
     async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
@@ -347,6 +361,42 @@ class WeatherData():
         self._params = {"location": location,
                         "key": key}
 
+        self._is_jwt = False
+
+        #self._name = None
+        self._condition = None
+        self._temperature = None
+        self._temperature_unit = None
+        self._humidity = None
+        self._pressure = None
+        self._wind_speed = None
+        self._wind_bearing = None
+        self._visibility = None
+        self._precipitation = None
+        self._dew = None
+        self._feelslike = None
+        self._cloud =None
+
+        self._forecast = None
+        self._forecast_hourly = None
+        self._updatetime = None
+
+
+    def __init__(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid):
+        """初始化函数."""
+        self._hass = hass
+
+        #self._url = "https://free-api.heweather.com/s6/weather/forecast?location="+location+"&key="+key
+        self._forecast_url = "https://"+host+"/v7/weather/7d?location="+location
+        self._weather_now_url = "https://"+host+"/v7/weather/now?location="+location
+        self._forecast_hourly_url = "https://"+host+"/v7/weather/24h?location="+location
+        self._params = {"location": location}
+
+        self._is_jwt = True
+        self._heweather_cert = heweather_cert
+        self._jwt_sub = jwt_sub
+        self._jwt_kid = jwt_kid
+
         #self._name = None
         self._condition = None
         self._temperature = None
@@ -466,7 +516,11 @@ class WeatherData():
         try:
             timeout = aiohttp.ClientTimeout(total=20)
             connector = aiohttp.TCPConnector(limit=10)
-            async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
+            headers = None
+            if self._is_jwt:
+                jwt_token = await self._heweather_cert.get_jwt_token_heweather_async(self._jwt_sub, self._jwt_kid, int(time.time()) - 30, int(time.time()) + 180)
+                headers = {'Authorization': f'Bearer {jwt_token}'}
+            async with aiohttp.ClientSession(connector=connector, timeout=timeout, headers=headers) as session:
                 async with session.get(self._weather_now_url) as response:
                     json_data = await response.json()
                     weather = json_data["now"]
