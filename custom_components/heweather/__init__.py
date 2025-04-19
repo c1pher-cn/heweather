@@ -52,4 +52,6 @@ async def async_remove_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
     
     await heweather_cert.del_key_async()
 
+    hass.data.pop(DOMAIN, None)
+
     return True
