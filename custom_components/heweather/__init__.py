@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 
-PLATFORMS = [Platform.WEATHER, Platform.SENSOR]
+SUPPORTED_PLATFORMS = [Platform.WEATHER, Platform.SENSOR]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,14 +35,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         hass.data[DOMAIN]["heweather_cert"] = cert
         _LOGGER.info("create heweather cert instance")
 
-    await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(config_entry, SUPPORTED_PLATFORMS)
 
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(
-        config_entry, PLATFORMS
+        config_entry, SUPPORTED_PLATFORMS
     )
 
     return unload_ok

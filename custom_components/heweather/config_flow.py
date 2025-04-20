@@ -1,25 +1,11 @@
 import logging
-from datetime import datetime, timedelta
 
 import asyncio
-import async_timeout
-import aiohttp
-from typing import Optional, Set, Tuple
+from typing import Optional
 
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.components import zeroconf
-from homeassistant.components.zeroconf import HaAsyncZeroconf
-from homeassistant.components.webhook import (
-    async_register as webhook_async_register,
-    async_unregister as webhook_async_unregister,
-    async_generate_path as webhook_async_generate_path
-)
-from homeassistant.core import callback
-from homeassistant.data_entry_flow import AbortFlow
-from homeassistant.helpers.instance_id import async_get
-import homeassistant.helpers.config_validation as cv
 
 from .heweather.const import (
     DOMAIN,
