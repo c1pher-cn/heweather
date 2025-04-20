@@ -4,7 +4,7 @@ from typing import Optional
 from .heweather.heweather_cert import HeWeatherCert
 from .heweather.const import (
     DOMAIN,
-    CONF_LOCATION,
+    CONF_STORAGE_PATH,
 )
 
 
@@ -31,7 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     # HeWeather Certification
     cert: Optional[HeWeatherCert] = hass.data[DOMAIN].get("heweather_cert", None)
     if not cert:
-        cert = HeWeatherCert(root_path=config_entry.data.get(CONF_LOCATION), loop=loop)
+        cert = HeWeatherCert(root_path=config_entry.data.get(CONF_STORAGE_PATH), loop=loop)
         hass.data[DOMAIN]["heweather_cert"] = cert
         _LOGGER.info("create heweather cert instance")
 
