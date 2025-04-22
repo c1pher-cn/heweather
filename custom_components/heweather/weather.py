@@ -382,7 +382,7 @@ class WeatherData():
         self._updatetime = None
 
 
-    def __init__(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid):
+    def newinit(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid):
         """初始化函数."""
         self._hass = hass
 
