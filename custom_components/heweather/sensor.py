@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+import time
 
 # 此处引入了几个异步处理的库
 import asyncio
@@ -12,6 +13,9 @@ import voluptuous as vol
 # track_time_interval需要使用对应的异步的版本
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
@@ -33,19 +37,29 @@ from homeassistant.helpers.entity import Entity
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.dt as dt_util
 
+from .heweather.const import (
+    DOMAIN,
+    CONF_AUTH_METHOD,
+    CONF_OPTIONS,
+    CONF_LOCATION,
+    CONF_HOST,
+    CONF_KEY,
+    CONF_JWT_SUB,
+    CONF_JWT_KID,
+    DEFAULT_HOST,
+    CONF_DISASTERLEVEL,
+    CONF_DISASTERMSG,
+    CONF_SENSOR_LIST,
+    DISASTER_LEVEL,
+    ATTR_UPDATE_TIME,
+    ATTR_SUGGESTION,
+    ATTRIBUTION
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 WEATHER_TIME_BETWEEN_UPDATES = timedelta(seconds=600)
 LIFESUGGESTION_TIME_BETWEEN_UPDATES = timedelta(seconds=7200)
-
-CONF_OPTIONS = "options"
-CONF_LOCATION = "location"
-CONF_HOST = "host"
-CONF_KEY = "key"
-CONF_DISASTERLEVEL = "disasterlevel"
-CONF_DISASTERMSG = "disastermsg"
-CONF_SENSOR_LIST = ["air","comf","cw","drsg","flu","sport","trav","uv","sunglass","guomin","liangshai","jiaotong","fangshai","kongtiao","disaster_warn","temprature","humidity","category","feelsLike","text","windDir","windScale","windSpeed","pressure","vis","cloud","dew","precip","qlty","level","primary","pm25","pm10","co","so2","no2","o3"]
 
 OPTIONS = {
     "temprature": ["Heweather_temperature", "室外温度", "mdi:thermometer", UnitOfTemperature.CELSIUS],
@@ -90,30 +104,50 @@ OPTIONS = {
 
 }
 
-DISASTER_LEVEL = {
-        "Cancel":0,
-        "None":0,
-        "Unknown":0,
-        "Standard":1,
-        "Minor":2,
-        "Moderate":3,
-        "Major":4,
-        "Severe":5,
-        "Extreme":6
-        }
-ATTR_UPDATE_TIME = "更新时间"
-ATTR_SUGGESTION = "建议"
-ATTRIBUTION = "来自和风天气的天气数据"
-
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_LOCATION): cv.string,
-    vol.Required(CONF_HOST): cv.string,
+    vol.Required(CONF_HOST, default=DEFAULT_HOST): cv.string,
     vol.Required(CONF_KEY): cv.string,
     vol.Required(CONF_DISASTERLEVEL): cv.string,
     vol.Required(CONF_DISASTERMSG): cv.string,
 
 })
+
+
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+    """这个协程是程序的入口，其中add_devices函数也变成了异步版本."""
+    _LOGGER.info("setup platform sensor.Heweather...")
+
+    location = config_entry.data.get(CONF_LOCATION)
+    host = config_entry.data.get(CONF_HOST)
+    key = config_entry.data.get(CONF_KEY)
+    disastermsg = config_entry.data.get(CONF_DISASTERMSG)
+    disasterlevel = config_entry.data.get(CONF_DISASTERLEVEL)
+    # 这里通过 data 实例化class weatherdata，并传入调用API所需信息
+    auth_method = config_entry.data.get(CONF_AUTH_METHOD)
+    if auth_method == "key":
+        key = config_entry.data.get(CONF_KEY)
+        suggestion_data = SuggestionData(hass, location, host, key)
+        weather_data = WeatherData(hass, location, host, key, disastermsg, disasterlevel)
+    else:
+        # HeWeather Certification
+        heweather_cert = hass.data[DOMAIN].get('heweather_cert', None)
+        jwt_sub = config_entry.data.get(CONF_JWT_SUB)
+        jwt_kid = config_entry.data.get(CONF_JWT_KID)
+        suggestion_data = SuggestionData(hass, location, host, heweather_cert, jwt_sub, jwt_kid)
+        weather_data = WeatherData(hass, location, host, heweather_cert, jwt_sub, jwt_kid, disastermsg, disasterlevel)
+
+    await weather_data.async_update(dt_util.now())
+    async_track_time_interval(hass, weather_data.async_update, WEATHER_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+
+    await suggestion_data.async_update(dt_util.now())
+    async_track_time_interval(hass, suggestion_data.async_update, LIFESUGGESTION_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+
+    dev = []
+    for option in CONF_SENSOR_LIST:
+        dev.append(HeweatherWeatherSensor(weather_data,suggestion_data, option,location))
+    async_add_entities(dev, True)
 
 
 #@asyncio.coroutine
@@ -131,10 +165,10 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
     suggestion_data = SuggestionData(hass, location, host, key)
 
     await weather_data.async_update(dt_util.now())
-    async_track_time_interval(hass, weather_data.async_update, WEATHER_TIME_BETWEEN_UPDATES)
+    async_track_time_interval(hass, weather_data.async_update, WEATHER_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
 
     await suggestion_data.async_update(dt_util.now())
-    async_track_time_interval(hass, suggestion_data.async_update, LIFESUGGESTION_TIME_BETWEEN_UPDATES)
+    async_track_time_interval(hass, suggestion_data.async_update, LIFESUGGESTION_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
 
     dev = []
     for option in CONF_SENSOR_LIST:
@@ -319,6 +353,57 @@ class WeatherData(object):
         self._humidity = None
 
 
+        self._is_jwt = False
+
+        self._feelsLike = None
+        self._text = None
+        self._windDir = None
+        self._windScale = None
+        self._windSpeed = None
+        self._precip = None
+        self._pressure = None
+        self._vis = None
+        self._cloud = None
+        self._dew = None
+        self._updatetime = None
+
+        self._category = None
+        self._pm10 = None
+        self._primary = None
+        self._level = None
+
+
+
+        self._pm25 = None
+        self._no2 = None
+        self._so2 = None
+        self._co = None
+        self._o3 = None
+        self._qlty = None
+        self._disaster_warn = None
+        self._updatetime = None
+
+    def __init__(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid, disastermsg, disasterlevel):
+        """初始化函数."""
+        self._hass = hass
+        self._disastermsg = disastermsg
+        self._disasterlevel = disasterlevel
+        #disastermsg, disasterlevel
+
+       # self._url = "https://free-api.heweather.com/s6/weather/now"
+        self._weather_now_url = "https://"+host+"/v7/weather/now?location="+location
+        self._air_now_url = "https://"+host+"/v7/air/now?location="+location
+        self._disaster_warn_url = "https://"+host+"/v7/warning/now?location="+location
+        self._params = {"location": location}
+        self._temprature = None
+        self._humidity = None
+
+
+        self._is_jwt = True
+        self._heweather_cert = heweather_cert
+        self._jwt_sub = jwt_sub
+        self._jwt_kid = jwt_kid
+
         self._feelsLike = None
         self._text = None
         self._windDir = None
@@ -478,7 +563,11 @@ class WeatherData(object):
         try:
             timeout = aiohttp.ClientTimeout(total=20)
             connector = aiohttp.TCPConnector(limit=10)
-            async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
+            headers = None
+            if self._is_jwt:
+                jwt_token = await self._heweather_cert.get_jwt_token_heweather_async(self._jwt_sub, self._jwt_kid, int(time.time()) - 30, int(time.time()) + 180)
+                headers = {'Authorization': f'Bearer {jwt_token}'}
+            async with aiohttp.ClientSession(connector=connector, timeout=timeout, headers=headers) as session:
                 async with session.get(self._weather_now_url) as response:
                     json_data = await response.json()
                     weather = json_data["now"]
@@ -548,6 +637,38 @@ class SuggestionData(object):
                         "key": key,
                         "type": 0
                     }
+
+        self._is_jwt = False
+
+        self._updatetime = ["1","1"]
+        self._air = ["1","1"]
+        self._comf = ["1","1"]
+        self._cw = ["1","1"]
+        self._drsg = ["1","1"]
+        self._flu = ["1","1"]
+        self._sport = ["1","1"]
+        self._trav = ["1","1"]
+        self._uv = ["1","1"]
+        self._guomin = None
+        self._kongtiao = None
+        self._sunglass = None
+        self._liangshai = None
+        self._fangshai = None
+        self._jiaotong = None
+
+    def __init__(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid):
+        """初始化函数."""
+        self._hass = hass
+
+        self._url = "https://"+host+"/v7/indices/1d?location="+location+"&type=0"
+        self._params = {"location": location,
+                        "type": 0
+                    }
+
+        self._is_jwt = True
+        self._heweather_cert = heweather_cert
+        self._jwt_sub = jwt_sub
+        self._jwt_kid = jwt_kid
 
         self._updatetime = ["1","1"]
         self._air = ["1","1"]
@@ -646,10 +767,14 @@ class SuggestionData(object):
         """从远程更新信息."""
         try:
             session = async_get_clientsession(self._hass)
+            headers = None
+            if self._is_jwt:
+                jwt_token = await self._heweather_cert.get_jwt_token_heweather_async(self._jwt_sub, self._jwt_kid, int(time.time()) - 30, int(time.time()) + 180)
+                headers = {'Authorization': f'Bearer {jwt_token}'}
             with async_timeout.timeout(15):
             #with async_timeout.timeout(15, loop=self._hass.loop):
                 response = await session.get(
-                    self._url)
+                    self._url, headers=headers)
 
         except(asyncio.TimeoutError, aiohttp.ClientError):
             _LOGGER.error("Error while accessing: %s", self._url)

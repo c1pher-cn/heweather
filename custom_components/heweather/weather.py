@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+import time
 
 import asyncio
 import async_timeout
@@ -9,6 +10,9 @@ import voluptuous as vol
 
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from homeassistant.components.weather import (
     WeatherEntity,
@@ -41,6 +45,20 @@ from homeassistant.const import (
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.dt as dt_util
 
+from .heweather.const import (
+    DOMAIN,
+    CONF_AUTH_METHOD,
+    CONF_LOCATION,
+    CONF_HOST,
+    CONF_KEY,
+    CONF_JWT_SUB,
+    CONF_JWT_KID,
+    DEFAULT_HOST,
+    CONDITION_CLASSES,
+    ATTR_UPDATE_TIME,
+    ATTRIBUTION
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
@@ -48,33 +66,9 @@ HOURLY_TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
 
 DEFAULT_TIME = dt_util.now()
 
-CONF_LOCATION = "location"
-CONF_HOST = "host"
-CONF_KEY = "key"
-
-CONDITION_CLASSES = {
-    'sunny': ["晴"],
-    'cloudy': ["多云"],
-    'partlycloudy': ["少云", "晴间多云", "阴"],
-    'windy': ["有风", "微风", "和风", "清风"],
-    'windy-variant': ["强风", "劲风", "疾风", "大风", "烈风"],
-    'hurricane': ["飓风", "龙卷风", "热带风暴", "狂暴风", "风暴"],
-    'rainy': ["雨", "毛毛雨", "细雨", "小雨", "小到中雨", "中雨", "中到大雨", "大雨", "大到暴雨", "阵雨", "极端降雨", "冻雨"],
-    'pouring': ["暴雨", "暴雨到大暴雨", "大暴雨", "大暴雨到特大暴雨", "特大暴雨", "强阵雨"],
-    'lightning-rainy': ["雷阵雨", "强雷阵雨"],
-    'fog': ["雾", "薄雾", "霾", "浓雾", "强浓雾", "中度霾", "重度霾", "严重霾", "大雾", "特强浓雾"],
-    'hail': ["雷阵雨伴有冰雹"],
-    'snowy': ["小雪", "小到中雪", "中雪", "中到大雪", "大雪", "大到暴雪", "暴雪", "阵雪"],
-    'snowy-rainy': ["雨夹雪", "雨雪天气", "阵雨夹雪"],
-    'exceptional': ["扬沙", "浮尘", "沙尘暴", "强沙尘暴", "未知"],
-}
-
-ATTR_UPDATE_TIME = "更新时间"
-ATTRIBUTION = "来自和风天气的天气数据"
-
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_LOCATION): cv.string,
-    vol.Required(CONF_HOST): cv.string,
+    vol.Required(CONF_HOST, default=DEFAULT_HOST): cv.string,
     vol.Required(CONF_KEY): cv.string,
 })
 # # 集成安装
@@ -113,19 +107,43 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 #     _LOGGER.debug('[%s]刷新间隔时间: %s 分钟', name, update_interval_minutes)
 #     async_add_entities([HeWeather(data, location)], True)
 
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
+    """Set up the hefeng weather."""
+    _LOGGER.info("setup platform weather.Heweather...")
+
+    location = config_entry.data.get(CONF_LOCATION)
+    host = config_entry.data.get(CONF_HOST)
+    auth_method = config_entry.data.get(CONF_AUTH_METHOD)
+    if auth_method == "key":
+        key = config_entry.data.get(CONF_KEY)
+        data = WeatherData(hass, location, host, key)
+    else:
+        # HeWeather Certification
+        heweather_cert = hass.data[DOMAIN].get('heweather_cert', None)
+        jwt_sub = config_entry.data.get(CONF_JWT_SUB)
+        jwt_kid = config_entry.data.get(CONF_JWT_KID)
+        data = WeatherData(hass, location, host, heweather_cert, jwt_sub, jwt_kid)
+
+    weather = HeWeather(data, location)
+    await weather.async_update_data(dt_util.now())
+    async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+
+    async_add_entities([weather], True)
+
 #@asyncio.coroutine
 async def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
-   """Set up the hefeng weather."""
-   _LOGGER.info("setup platform weather.Heweather...")
+    """Set up the hefeng weather."""
+    _LOGGER.info("setup platform weather.Heweather...")
 
-   location = config.get(CONF_LOCATION)
-   host = config.get(CONF_HOST)
-   key = config.get(CONF_KEY)
-   data = WeatherData(hass, location, host, key)
-   await data.async_update(dt_util.now())
-   async_track_time_interval(hass, data.async_update, TIME_BETWEEN_UPDATES)
-
-   async_add_devices([HeWeather(data, location)], True)
+    location = config.get(CONF_LOCATION)
+    host = config.get(CONF_HOST)
+    key = config.get(CONF_KEY)
+    data = WeatherData(hass, location, host, key)
+    weather = HeWeather(data, location)
+    await weather.async_update_data(dt_util.now())
+    async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+ 
+    async_add_devices([weather], True)
 
 
 class HeWeather(WeatherEntity):
@@ -257,7 +275,8 @@ class HeWeather(WeatherEntity):
 
     async def async_forecast_daily(self) -> list[Forecast]:
         """Return the daily forecast."""
-        reftime = datetime.now()
+        # reftime = datetime.now()
+        reftime = self._data._updatetime
 
         forecast_data = []
         for entry in self._forecast:
@@ -275,7 +294,8 @@ class HeWeather(WeatherEntity):
 
     async def async_forecast_hourly(self) -> list[Forecast]:
         """Return the daily forecast."""
-        reftime = datetime.now()
+        # reftime = datetime.now()
+        reftime = self._data._updatetime
 
         forecast_hourly_data = []
         for entry in self._forecast_hourly:
@@ -322,6 +342,10 @@ class HeWeather(WeatherEntity):
         self._forecast_hourly = self._data.forecast_hourly
         _LOGGER.info("success to update informations")
 
+    async def async_update_data(self, now=DEFAULT_TIME):
+        await self._data.async_update(now)
+        await self.async_update_listeners(['daily', 'hourly'])
+
 
 class WeatherData():
     """天气相关的数据，存储在这个类中."""
@@ -336,6 +360,42 @@ class WeatherData():
         self._forecast_hourly_url = "https://"+host+"/v7/weather/24h?location="+location+"&key="+key
         self._params = {"location": location,
                         "key": key}
+
+        self._is_jwt = False
+
+        #self._name = None
+        self._condition = None
+        self._temperature = None
+        self._temperature_unit = None
+        self._humidity = None
+        self._pressure = None
+        self._wind_speed = None
+        self._wind_bearing = None
+        self._visibility = None
+        self._precipitation = None
+        self._dew = None
+        self._feelslike = None
+        self._cloud =None
+
+        self._forecast = None
+        self._forecast_hourly = None
+        self._updatetime = None
+
+
+    def __init__(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid):
+        """初始化函数."""
+        self._hass = hass
+
+        #self._url = "https://free-api.heweather.com/s6/weather/forecast?location="+location+"&key="+key
+        self._forecast_url = "https://"+host+"/v7/weather/7d?location="+location
+        self._weather_now_url = "https://"+host+"/v7/weather/now?location="+location
+        self._forecast_hourly_url = "https://"+host+"/v7/weather/24h?location="+location
+        self._params = {"location": location}
+
+        self._is_jwt = True
+        self._heweather_cert = heweather_cert
+        self._jwt_sub = jwt_sub
+        self._jwt_kid = jwt_kid
 
         #self._name = None
         self._condition = None
@@ -456,7 +516,11 @@ class WeatherData():
         try:
             timeout = aiohttp.ClientTimeout(total=20)
             connector = aiohttp.TCPConnector(limit=10)
-            async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
+            headers = None
+            if self._is_jwt:
+                jwt_token = await self._heweather_cert.get_jwt_token_heweather_async(self._jwt_sub, self._jwt_kid, int(time.time()) - 30, int(time.time()) + 180)
+                headers = {'Authorization': f'Bearer {jwt_token}'}
+            async with aiohttp.ClientSession(connector=connector, timeout=timeout, headers=headers) as session:
                 async with session.get(self._weather_now_url) as response:
                     json_data = await response.json()
                     weather = json_data["now"]
@@ -492,7 +556,7 @@ class WeatherData():
 
 
        # self._windScale = weather["windScale"]
-        self._updatetime = weather["obsTime"]
+        self._updatetime = datetime.strptime(weather["obsTime"], "%Y-%m-%dT%H:%M%z")
 
 
         datemsg = forecast["daily"]
