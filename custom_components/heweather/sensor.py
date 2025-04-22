@@ -383,7 +383,7 @@ class WeatherData(object):
         self._disaster_warn = None
         self._updatetime = None
 
-    def __init__(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid, disastermsg, disasterlevel):
+    def newinit(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid, disastermsg, disasterlevel):
         """初始化函数."""
         self._hass = hass
         self._disastermsg = disastermsg
@@ -656,7 +656,7 @@ class SuggestionData(object):
         self._fangshai = None
         self._jiaotong = None
 
-    def __init__(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid):
+    def newinit(self, hass, location, host, heweather_cert, jwt_sub, jwt_kid):
         """初始化函数."""
         self._hass = hass
 
