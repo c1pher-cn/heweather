@@ -1,0 +1,32 @@
+name: Upload ZIP to Release
+
+on:
+  release:
+    types: [created]  # 当创建 Release 时触发
+permissions:
+  contents: write   # 关键：赋予写 release 资源的权限
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 拉取代码
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. 创建 ZIP 文件（排除不需要的目录/文件）
+      - name: Create ZIP
+        run: |
+          zip -r heweather.zip . -x "*.git*" ".github/*"
+
+      # 3. 上传 ZIP 到 Release
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./heweather.zip
+          asset_name: heweather.zip
+          asset_content_type: application/zip
