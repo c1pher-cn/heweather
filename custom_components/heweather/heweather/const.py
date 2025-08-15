@@ -67,7 +67,14 @@ DISASTER_LEVEL = {
         "Moderate":3,
         "Major":4,
         "Severe":5,
-        "Extreme":6
+        "Extreme":6,
+        "White":0,
+        "Blue":1,
+        "Green":2,
+        "Yellow":3,
+        "Orange":4,
+        "Red":5,
+        "Black":6
         }
 
 ATTR_UPDATE_TIME = "更新时间"
