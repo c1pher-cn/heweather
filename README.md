@@ -1,6 +1,9 @@
+
+![downloads](https://img.shields.io/github/downloads/c1pher-cn/heweather/total.svg) ![GitHub forks](https://img.shields.io/github/forks/c1pher-cn/heweather)
+
+
 # 和风天气 homeassistant插件
 
-  我使用的插件最早引用自[瀚思彼岸智能家居技术论坛](https://bbs.hassbian.com/) Golden_Soap大佬的[插件](https://bbs.hassbian.com/thread-3971-1-1.html),但该插件很久没有更新过配置，导致我的环境一直无法运行，自己肝的原因主要是懒得改之前的参数配置，换插件全得改一遍，有的数据还没了，又正好借着这个机会能再学习下插件的逻辑，哈哈哈。
   
   如果觉得对你有帮助，就来b站支持一波吧：[_小愚_](https://space.bilibili.com/15856864)
 
