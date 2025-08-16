@@ -43,8 +43,6 @@ jobs:
       # 2. 创建 ZIP 文件（排除不需要的目录/文件）
       - name: Create ZIP
         run: |
-          zip -r heweather.zip . -x "*.git*" ".github/*"
-          
           echo "Creating ZIP file..."
           cd custom_components/heweather
           zip -r ../../heweather.zip . -x "__pycache__/*" "*.pyc"
