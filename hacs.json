@@ -1,6 +1,6 @@
 {
     "name": "HeFeng Weather Forecast for Home Assistant",
-    "content_in_root": false,
+    "content_in_root": true,
     "render_readme": true,
     "zip_release": true,
     "filename": "heweather.zip",
