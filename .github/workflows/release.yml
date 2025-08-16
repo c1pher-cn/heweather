@@ -37,7 +37,7 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/v}
           sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" custom_components/heweather/manifest.json
           echo "Updated manifest version to: $VERSION"
-          cat custom_components/xiaozhi_mcp/manifest.json
+          cat custom_components/heweather/manifest.json
 
 
       # 2. 创建 ZIP 文件（排除不需要的目录/文件）
