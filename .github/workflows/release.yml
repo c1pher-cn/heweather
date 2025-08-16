@@ -14,11 +14,46 @@ jobs:
       # 1. 拉取代码
       - name: Checkout repository
         uses: actions/checkout@v4
+      #检查tag
+      - name: Validate tag format
+        run: |
+          if [[ ! "$GITHUB_REF" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "Error: Tag must be in format v#.#.# (e.g., v1.0.0)"
+            exit 1
+          fi
+          echo "Tag format is valid: $GITHUB_REF"
+
+      - name: Get version from tag
+        id: get_version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "Current ref: $GITHUB_REF"
+          echo "Tag name: ${GITHUB_REF#refs/tags/}"
+          
+      # 更新manifest
+      - name: Update manifest version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" custom_components/heweather/manifest.json
+          echo "Updated manifest version to: $VERSION"
+          cat custom_components/xiaozhi_mcp/manifest.json
+
 
       # 2. 创建 ZIP 文件（排除不需要的目录/文件）
       - name: Create ZIP
         run: |
           zip -r heweather.zip . -x "*.git*" ".github/*"
+          
+          echo "Creating ZIP file..."
+          cd custom_components/heweather
+          zip -r ../../heweather.zip . -x "__pycache__/*" "*.pyc"
+          cd ../..
+          echo "ZIP file created:"
+          ls -la heweather.zip
+          echo "ZIP file contents:"
+          unzip -l heweather.zip
+
 
       # 3. 上传 ZIP 到 Release
       - name: Upload Release Asset
