@@ -22,7 +22,6 @@ from homeassistant.const import (
     ATTR_ATTRIBUTION, ATTR_FRIENDLY_NAME,
     #TEMP_CELSIUS,
     UnitOfTemperature,
-    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     PERCENTAGE,
     #PRECIPITATION_MILLIMETERS_PER_HOUR,
     UnitOfVolumetricFlux,
@@ -41,7 +40,8 @@ from .heweather.const import (
     DOMAIN,
     CONF_AUTH_METHOD,
     CONF_OPTIONS,
-    CONF_LOCATION,
+    CONF_LONGITUDE,
+    CONF_LATITUDE,
     CONF_HOST,
     CONF_KEY,
     CONF_JWT_SUB,
@@ -77,12 +77,14 @@ OPTIONS = {
     "primary": ["Heweather_primary", "空气质量的主要污染物", "mdi:weather-dust", " "],
     "category": ["Heweather_category", "空气质量指数级别", "mdi:walk", " "],
     "level": ["Heweather_level", "空气质量指数等级", "mdi:walk", " "],
-    "pm25": ["Heweather_pm25", "PM2.5", "mdi:walk", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
-    "pm10": ["Heweather_pm10", "PM10", "mdi:walk", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
-    "no2": ["Heweather_no2", "二氧化氮", "mdi:emoticon-dead", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
-    "so2": ["Heweather_so2", "二氧化硫", "mdi:emoticon-dead", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
-    "co": ["Heweather_co", "一氧化碳", "mdi:molecule-co", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
-    "o3": ["Heweather_o3", "臭氧", "mdi:weather-cloudy", CONCENTRATION_MICROGRAMS_PER_CUBIC_METER],
+    "pm25": ["Heweather_pm25", "PM2.5", "mdi:walk", " "],
+    "pm10": ["Heweather_pm10", "PM10", "mdi:walk", " "],
+    "no2": ["Heweather_no2", "二氧化氮", "mdi:emoticon-dead", " "],
+    "so2": ["Heweather_so2", "二氧化硫", "mdi:emoticon-dead", " "],
+    "co": ["Heweather_co", "一氧化碳", "mdi:molecule-co", " "],
+    "o3": ["Heweather_o3", "臭氧", "mdi:weather-cloudy", " "],
+    "no": ["Heweather_no", "一氧化氮", "mdi:emoticon-dead", " "],
+    "nmhc": ["Heweather_nmhc", "非甲烷总烃", "mdi:emoticon-dead", " "],
     "qlty": ["Heweather_qlty", "综合空气质量", "mdi:quality-high", " "],
     "disaster_warn": ["Heweather_disaster_warn", "灾害预警", "mdi:alert", " "],
 
@@ -106,7 +108,8 @@ OPTIONS = {
 
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_LOCATION): cv.string,
+    vol.Required(CONF_LONGITUDE): cv.string,
+    vol.Required(CONF_LATITUDE): cv.string,
     vol.Required(CONF_HOST, default=DEFAULT_HOST): cv.string,
     vol.Required(CONF_KEY): cv.string,
     vol.Required(CONF_DISASTERLEVEL): cv.string,
@@ -119,7 +122,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
     """这个协程是程序的入口，其中add_devices函数也变成了异步版本."""
     _LOGGER.info("setup platform sensor.Heweather...")
 
-    location = config_entry.data.get(CONF_LOCATION)
+    longitude = config_entry.data.get(CONF_LONGITUDE)
+    latitude = config_entry.data.get(CONF_LATITUDE)
     host = config_entry.data.get(CONF_HOST)
     key = config_entry.data.get(CONF_KEY)
     disastermsg = config_entry.data.get(CONF_DISASTERMSG)
@@ -128,15 +132,15 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
     auth_method = config_entry.data.get(CONF_AUTH_METHOD)
     if auth_method == "key":
         key = config_entry.data.get(CONF_KEY)
-        suggestion_data = SuggestionData(hass, location, host, key=key)
-        weather_data = WeatherData(hass, location, host, disastermsg, disasterlevel, key=key)
+        suggestion_data = SuggestionData(hass, longitude, latitude, host, key=key)
+        weather_data = WeatherData(hass, longitude, latitude, host, disastermsg, disasterlevel, key=key)
     else:
         # HeWeather Certification
         heweather_cert = hass.data[DOMAIN].get('heweather_cert', None)
         jwt_sub = config_entry.data.get(CONF_JWT_SUB)
         jwt_kid = config_entry.data.get(CONF_JWT_KID)
-        suggestion_data = SuggestionData(hass, location, host, heweather_cert=heweather_cert, jwt_sub=jwt_sub, jwt_kid=jwt_kid)
-        weather_data = WeatherData(hass, location, host, disastermsg, disasterlevel, heweather_cert=heweather_cert, jwt_sub=jwt_sub, jwt_kid=jwt_kid)
+        suggestion_data = SuggestionData(hass, longitude, latitude, host, heweather_cert=heweather_cert, jwt_sub=jwt_sub, jwt_kid=jwt_kid)
+        weather_data = WeatherData(hass, longitude, latitude, host, disastermsg, disasterlevel, heweather_cert=heweather_cert, jwt_sub=jwt_sub, jwt_kid=jwt_kid)
 
     await weather_data.async_update(dt_util.now())
     async_track_time_interval(hass, weather_data.async_update, WEATHER_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
@@ -146,7 +150,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 
     dev = []
     for option in CONF_SENSOR_LIST:
-        dev.append(HeweatherWeatherSensor(weather_data,suggestion_data, option,location))
+        dev.append(HeweatherWeatherSensor(weather_data, suggestion_data, option, longitude, latitude))
     async_add_entities(dev, True)
 
 
@@ -155,14 +159,15 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
     """这个协程是程序的入口，其中add_devices函数也变成了异步版本."""
     _LOGGER.info("setup platform sensor.Heweather...")
 
-    location = config.get(CONF_LOCATION)
+    longitude = config.get(CONF_LONGITUDE)
+    latitude = config.get(CONF_LATITUDE)
     host = config.get(CONF_HOST)
     key = config.get(CONF_KEY)
     disastermsg = config.get(CONF_DISASTERMSG)
     disasterlevel = config.get(CONF_DISASTERLEVEL)
     # 这里通过 data 实例化class weatherdata，并传入调用API所需信息
-    weather_data = WeatherData(hass, location, host, disastermsg, disasterlevel, key=key)
-    suggestion_data = SuggestionData(hass, location, host, key=key)
+    weather_data = WeatherData(hass, longitude, latitude, host, disastermsg, disasterlevel, key=key)
+    suggestion_data = SuggestionData(hass, longitude, latitude, host, key=key)
 
     await weather_data.async_update(dt_util.now())
     async_track_time_interval(hass, weather_data.async_update, WEATHER_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
@@ -172,14 +177,14 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
 
     dev = []
     for option in CONF_SENSOR_LIST:
-        dev.append(HeweatherWeatherSensor(weather_data,suggestion_data, option,location))
+        dev.append(HeweatherWeatherSensor(weather_data, suggestion_data, option, longitude, latitude))
     async_add_devices(dev, True)
 
 
 class HeweatherWeatherSensor(Entity):
     """定义一个温度传感器的类，继承自HomeAssistant的Entity类."""
 
-    def __init__(self, weather_data,suggestion_data, option,location):
+    def __init__(self, weather_data, suggestion_data, option, longitude, latitude):
         """初始化."""
         self._weather_data = weather_data
         self._suggestion_data = suggestion_data
@@ -192,7 +197,7 @@ class HeweatherWeatherSensor(Entity):
         self._state = None
         self._attributes = {"states":"null"}
         self._updatetime = None
-        self._attr_unique_id = OPTIONS[option][0] + location
+        self._attr_unique_id = f"{OPTIONS[option][0]}_{longitude}_{latitude}"
 
     @property
     def extra_state_attributes(self):
@@ -280,6 +285,10 @@ class HeweatherWeatherSensor(Entity):
             self._state = self._weather_data.co
         elif self._type == "o3":
             self._state = self._weather_data.o3
+        elif self._type == "no":
+            self._state = self._weather_data.no
+        elif self._type == "nmhc":
+            self._state = self._weather_data.nmhc
         elif self._type == "qlty":
             self._state = self._weather_data.qlty
         elif self._type == "disaster_warn":
@@ -333,12 +342,20 @@ class HeweatherWeatherSensor(Entity):
             self._state = self._suggestion_data.jiaotong[0]
             self._attributes["states"] = self._suggestion_data.jiaotong[1]
 
+        # 设置污染物单位
+        pollutant_types = {"pm10", "pm25", "no2", "so2", "co", "o3", "no", "nmhc"}
+        if self._type in pollutant_types:
+            unit = getattr(self._weather_data, f"{self._type}_unit", None)
+            if unit:
+                self._unit_of_measurement = unit
+
 class WeatherData(object):
     """天气相关的数据，存储在这个类中."""
 
-    def __init__(self, hass, location, host, disastermsg, disasterlevel, key=None, heweather_cert=None, jwt_sub=None, jwt_kid=None):
+    def __init__(self, hass, longitude, latitude, host, disastermsg, disasterlevel, key=None, heweather_cert=None, jwt_sub=None, jwt_kid=None):
         """初始化函数."""
         self._hass = hass
+        location = f"{longitude},{latitude}"
         self._disastermsg = disastermsg
         self._disasterlevel = disasterlevel
         #disastermsg, disasterlevel
@@ -349,15 +366,15 @@ class WeatherData(object):
         if key is not None:
             self._is_jwt = False
             self._weather_now_url = "https://"+host+"/v7/weather/now?location="+location+"&key="+key
-            self._air_now_url = "https://"+host+"/v7/air/now?location="+location+"&key="+key
-            self._disaster_warn_url = "https://"+host+"/v7/warning/now?location="+location+"&key="+key
+            self._air_now_url = "https://"+host+"/airquality/v1/current/"+latitude+"/"+longitude+"?key="+key
+            self._disaster_warn_url = "https://"+host+"/weatheralert/v1/current/"+latitude+"/"+longitude+"?key="+key
             self._params = {"location": location,
                             "key": key}
         else:
             self._is_jwt = True
             self._weather_now_url = "https://"+host+"/v7/weather/now?location="+location
-            self._air_now_url = "https://"+host+"/v7/air/now?location="+location
-            self._disaster_warn_url = "https://"+host+"/v7/warning/now?location="+location
+            self._air_now_url = "https://"+host+"/airquality/v1/current/"+latitude+"/"+longitude
+            self._disaster_warn_url = "https://"+host+"/weatheralert/v1/current/"+latitude+"/"+longitude
             self._params = {"location": location}
             self._heweather_cert = heweather_cert
             self._jwt_sub = jwt_sub
@@ -387,6 +404,17 @@ class WeatherData(object):
         self._so2 = None
         self._co = None
         self._o3 = None
+        self._no = None
+        self._nmhc = None
+        # 新 API 单位不固定，动态获取
+        self._pm10_unit = None
+        self._pm25_unit = None
+        self._no2_unit = None
+        self._so2_unit = None
+        self._co_unit = None
+        self._o3_unit = None
+        self._no_unit = None
+        self._nmhc_unit = None
         self._qlty = None
         self._disaster_warn = None
         self._updatetime = None
@@ -472,9 +500,17 @@ class WeatherData(object):
         return self._pm25
 
     @property
+    def pm25_unit(self):
+        return self._pm25_unit
+
+    @property
     def pm10(self):
         """pm10"""
         return self._pm10
+
+    @property
+    def pm10_unit(self):
+        return self._pm10_unit
 
     @property
     def qlty(self):
@@ -487,9 +523,17 @@ class WeatherData(object):
         return self._no2
 
     @property
+    def no2_unit(self):
+        return self._no2_unit
+
+    @property
     def co(self):
         """co"""
         return self._co
+
+    @property
+    def co_unit(self):
+        return self._co_unit
 
     @property
     def so2(self):
@@ -497,9 +541,35 @@ class WeatherData(object):
         return self._so2
 
     @property
+    def so2_unit(self):
+        return self._so2_unit
+
+    @property
     def o3(self):
         """o3"""
         return self._o3
+
+    @property
+    def o3_unit(self):
+        return self._o3_unit
+
+    @property
+    def no(self):
+        """no"""
+        return self._no
+
+    @property
+    def no_unit(self):
+        return self._no_unit
+
+    @property
+    def nmhc(self):
+        """nmhc"""
+        return self._nmhc
+
+    @property
+    def nmhc_unit(self):
+        return self._nmhc_unit
 
     @property
     def disaster_warn(self):
@@ -532,10 +602,12 @@ class WeatherData(object):
                     weather = json_data["now"]
                 async with session.get(self._air_now_url) as response:
                     json_data = await response.json()
-                    air = json_data["now"]
+                    # AQI (CN) code: cn-mee
+                    air_index = next((item for item in json_data["indexes"] if item["code"] == "cn-mee"), None)
+                    air_pollutants = json_data["pollutants"]
                 async with session.get(self._disaster_warn_url) as response:
                     json_data = await response.json()
-                    disaster_warn = json_data["warning"]
+                    disaster_warn = json_data["alerts"]
 
 
         except(asyncio.TimeoutError, aiohttp.ClientError):
@@ -556,25 +628,29 @@ class WeatherData(object):
         self._cloud = weather["cloud"]
         self._dew = weather["dew"]
         self._updatetime = weather["obsTime"]
-        self._category = air["category"]
-        self._pm25 = air["pm2p5"]
-        self._pm10 = air["pm10"]
-        self._primary = air["primary"]
-        self._level = air["level"]
-        self._no2 = air["no2"]
-        self._so2 = air["so2"]
-        self._co = air["co"]
-        self._o3 = air["o3"]
-        self._qlty = air["aqi"]
+        self._qlty = air_index["aqiDisplay"]
+        self._level = air_index["level"]
+        self._category = air_index["category"]
+        primary_pollutant = air_index["primaryPollutant"]
+        if primary_pollutant is not None and "name" in primary_pollutant:
+            self._primary = primary_pollutant["name"]
+
+        supported_codes = {"pm10", "pm2p5", "co", "no", "no2", "so2", "o3", "nmhc"}
+        for pollutant in air_pollutants:
+            code = pollutant["code"]
+            if code in supported_codes:
+                setattr(self, f"_{code}", pollutant["concentration"]["value"])
+                setattr(self, f"_{code}_unit", pollutant["concentration"]["unit"])
 
 
         allmsg=''
         titlemsg=''
         for i in disaster_warn:
             #if DISASTER_LEVEL[i["severity"]] >= 订阅等级:
-            if (DISASTER_LEVEL[i["severity"]] >= int(self._disasterlevel)):
-                allmsg = allmsg +i["title"] + ':' + i["text"] + '||'
-                titlemsg = titlemsg + i["title"] + '||'
+            severity = i.get("severity", "").lower()
+            if severity in DISASTER_LEVEL and (DISASTER_LEVEL[severity] >= int(self._disasterlevel)):
+                allmsg = allmsg +i["headline"] + ':' + i["description"] + '||'
+                titlemsg = titlemsg + i["headline"] + '||'
 
         if(len(titlemsg)<5):
             self._disaster_warn =  '近日无'+ self._disasterlevel +'级及以上灾害'
@@ -587,9 +663,10 @@ class WeatherData(object):
 class SuggestionData(object):
     """天气相关建议的数据，存储在这个类中."""
 
-    def __init__(self, hass, location, host, key=None, heweather_cert=None, jwt_sub=None, jwt_kid=None):
+    def __init__(self, hass, longitude, latitude, host, key=None, heweather_cert=None, jwt_sub=None, jwt_kid=None):
         """初始化函数."""
         self._hass = hass
+        location = f"{longitude},{latitude}"
 
         if key is not None:
             self._url = "https://"+host+"/v7/indices/1d?location="+location+"&key="+key+"&type=0"

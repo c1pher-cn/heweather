@@ -4,7 +4,8 @@ DEFAULT_NAME: str = '和风天气'
 # config platform
 CONF_AUTH_METHOD = "auth_method"
 CONF_OPTIONS = "options"
-CONF_LOCATION = "location"
+CONF_LONGITUDE = "longitude"
+CONF_LATITUDE = "latitude"
 CONF_HOST = "host"
 CONF_KEY = "key"
 CONF_STORAGE_PATH = "storage_path"
@@ -59,23 +60,23 @@ CONDITION_CLASSES = {
 }
 
 DISASTER_LEVEL = {
-        "Cancel":0,
-        "None":0,
-        "Unknown":0,
-        "Standard":1,
-        "Minor":2,
-        "Moderate":3,
-        "Major":4,
-        "Severe":5,
-        "Extreme":6,
-        "White":0,
-        "Blue":1,
-        "Green":2,
-        "Yellow":3,
-        "Orange":4,
-        "Red":5,
-        "Black":6
-        }
+    "cancel":0,
+    "none":0,
+    "unknown":0,
+    "standard":1,
+    "minor":2,
+    "moderate":3,
+    "major":4,
+    "severe":5,
+    "extreme":6,
+    "white":0,
+    "blue":1,
+    "green":2,
+    "yellow":3,
+    "orange":4,
+    "red":5,
+    "black":6
+}
 
 ATTR_UPDATE_TIME = "更新时间"
 ATTR_SUGGESTION = "建议"
