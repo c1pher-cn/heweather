@@ -93,11 +93,11 @@ OPTIONS = {
     "flu": ["suggestion_flu", "感冒指数", "mdi:biohazard", " "],
     "sport": ["suggestion_sport", "运动指数", "mdi:badminton", " "],
     "trav": ["suggestion_trav", "旅行指数", "mdi:wallet-travel", " "],
-    "uv": ["suggestion_uv", "紫外线指数", "mdi:weather-sun-wireless", " "],
+    "uv": ["suggestion_uv", "紫外线指数", "mdi:sun-wireless", " "],
     "guomin": ["suggestion_guomin", "过敏指数", "mdi:sunglasses", " "],
     "kongtiao": ["suggestion_kongtiao", "空调开启指数", "mdi:air-conditioner", " "],
     "sunglass": ["suggestion_sunglass", "太阳镜指数", "mdi:sunglasses", " "],
-    "fangshai": ["suggestion_fangshai", "防晒指数", "mdi:sun-protection-outline", " "],
+    "fangshai": ["suggestion_fangshai", "防晒指数", "mdi:shield-sun-outline", " "],
     "liangshai": ["suggestion_liangshai", "晾晒指数", "mdi:tshirt-crew-outline", " "],
 
     "jiaotong": ["suggestion_jiaotong", "交通指数", "mdi:train-car", " "],
