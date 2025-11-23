@@ -12,64 +12,40 @@
   
   如果觉得对你有帮助，就来b站支持一波吧：[_小愚_](https://space.bilibili.com/15856864)
 
-## 使用说明：
+## 配置说明：
 
-1.使用和风官方apiv7版本
+1.使用和风官方最新api版本
 
 2.必须申请开发者账号里的免费api，请务必升级到开发者账号（免费，api权限会比普通用户高一些）https://console.qweather.com/#/console
 
-3.appkey申请需要先[创建项目](https://console.qweather.com/project?lang=zh),后选创建凭据，选API KEY即可
+3.appkey申请需要先[创建项目](https://console.qweather.com/project?lang=zh),后选创建凭据，建议选择 JSON Web Token (JWT) ,公钥见第5步
 
-    国内的城市区域location关系：https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
-    
-4.在和风控制台的设置页面查看自己分配的API host：https://console.qweather.com/setting?lang=zh
+4.在HACS商店中搜索heweather,找到本插件并下载
+<img width="1671" height="299" alt="image" src="https://github.com/user-attachments/assets/45aa3754-4c9b-411e-b168-603835d58b9a" />
 
-5.新版本整合优化了sensor以及相关中文名字，图标。将原有的24小时天天气预报从sensor中转移到weather里
+5.设置->设备与服务->添加集成->搜索heweather->选择本插件
+<img width="581" height="350" alt="image" src="https://github.com/user-attachments/assets/2f7c4f00-894a-4bc1-8fab-6b295c57accc" />
 
+  建议使用JWT凭证，（API模式将在2027年废弃）
+  项目id点击已创建的项目后可见。
+  凭据id在创建凭据后可见，创建JWT凭据时粘贴ha页面显示的公钥即可。
+  <img width="1610" height="653" alt="image" src="https://github.com/user-attachments/assets/47748808-b52c-4980-b38d-df42a4b17277" />
+  HOST地址见设置页面
+  <img width="1086" height="345" alt="image" src="https://github.com/user-attachments/assets/5ab678ab-09d0-4a83-8635-9a32432606dd" />
+  国内的城市区域location、经纬度关系：
+  https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
 
+6. 关注的自然灾害等级，1-6为从轻微到严重， 代表在灾害预警里你关注的灾害等级。
+   
+    "Standard": "标准的",
+    "Minor": "次要的",
+    "Moderate": "中等的",
+    "Major": "主要",
+    "Severe": "严重",
+    "Extreme": "极端"
+   
+   只显示标题即只在灾害预警text中透出灾害标题，显示标题+明细信息则会在text中透出全部信息（会比较长）
 
-## 配置方法
-### 建议使用webui的配置流程
-  依照流程配置即可，不了解的参数参考下面手工配置说明来获取/配置
-### 手工配置和参数说明
-1.天气预报，默认支持7天和24小时预报，放在weather里，
-```
-weather:
-  - platform: heweather
-    location: 101210106        # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
-    host: devapi.qweather.com  # 开发者信息中的API Host
-    key: ABCDE                 # api平台申请的key
-```         
-2.天气情况、空气质量、自然灾害预警、各种生活指数，放在sensor里
-```
-sensor:
-  - platform: heweather
-    location: 101210106        # 填写你所在区域代码Location_ID,https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
-    host: devapi.qweather.com  # 开发者信息中的API Host
-    key: ABCDE                 # api平台申请的key
-    disasterlevel: 3
-    disastermsg: allmsg
- ```    
-sensor里的其他两个参数：
-
-  disasterlevel：表示关注的自然灾害等级，1-6为从轻微到严重
-  
-  配置3表示关注 >=3级的灾害，下为不同等级的英文描述
-```
-  Standard           1  最轻微
-  Minor              2
-  Moderate           3  
-  Major              4
-  Severe             5
-  Extreme            6  最严重
-```
-    
-  disastermsg：表示灾害预警是否显示灾害的明细信息
-    
-    title  只显示标题
-    
-    allmsg 显示标题+明细信息
-    
 
 
 ## 自动化配置实例
