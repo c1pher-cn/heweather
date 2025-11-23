@@ -3,6 +3,11 @@
         "abort": {
             "single_instance_allowed": "只允许配置一个和风天气集成条目。"
         },
+        "error": {
+            "empty_location": "经度和纬度不能为空",
+            "invalid_longitude": "经度格式不正确，必须是-180到180之间的数字",
+            "invalid_latitude": "纬度格式不正确，必须是-90到90之间的数字"
+        },
         "flow_title": "和风天气",
         "step": {
             "auth_method_config": {
@@ -31,9 +36,10 @@
             },
             "location_config": {
                 "title": "位置设置",
-                "description": "输入区域代码LocationID",
+                "description": "请输入经纬度坐标。经度范围：-180到180，纬度范围：-90到90。",
                 "data": {
-                    "location": "区域代码"
+                    "longitude": "经度",
+                    "latitude": "纬度"
                 }
             },
             "disaster_config": {

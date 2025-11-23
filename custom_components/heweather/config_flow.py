@@ -11,7 +11,8 @@ from .heweather.const import (
     DOMAIN,
     DEFAULT_NAME,
     CONF_AUTH_METHOD,
-    CONF_LOCATION,
+    CONF_LONGITUDE,
+    CONF_LATITUDE,
     CONF_HOST,
     CONF_KEY,
     CONF_STORAGE_PATH,
@@ -32,6 +33,20 @@ from .heweather.heweather_cert import HeWeatherCert
 
 _LOGGER = logging.getLogger(__name__)
 
+def validate_longitude(lon: str) -> bool:
+    try:
+        lon_float = float(lon)
+        return -180 <= lon_float <= 180
+    except ValueError:
+        return False
+
+def validate_latitude(lat: str) -> bool:
+    try:
+        lat_float = float(lat)
+        return -90 <= lat_float <= 90
+    except ValueError:
+        return False
+
 class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     MINOR_VERSION = 1
@@ -45,7 +60,8 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     _jwt_pubkey: str
     _jwt_sub: str
     _jwt_kid: str
-    _location: str
+    _longitude: str
+    _latitude: str
 
     _disasterlevel: str
     _disastermsg: str
@@ -60,7 +76,8 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._jwt_sub = ''
         self._jwt_kid = ''
 
-        self._location = ''
+        self._longitude = ''
+        self._latitude = ''
 
         self._disasterlevel = DEFAULT_DISASTER_LEVEL_CONF
         self._disastermsg = DEFAULT_DISASTER_MSG
@@ -188,7 +205,20 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: Optional[dict] = None
     ):
         if user_input:
-            self._location = user_input.get("location", self._location)
+            longitude = user_input.get("longitude", "")
+            latitude = user_input.get("latitude", "")
+
+            if not longitude or not latitude:
+                return await self.__show_location_config_form("empty_location")
+            
+            if not validate_longitude(longitude):
+                return await self.__show_location_config_form("invalid_longitude")
+            
+            if not validate_latitude(latitude):
+                return await self.__show_location_config_form("invalid_latitude")
+
+            self._longitude = f"{float(longitude):.2f}"
+            self._latitude = f"{float(latitude):.2f}"
             return await self.async_step_disaster_config()
         return await self.__show_location_config_form("")
 
@@ -197,8 +227,12 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="location_config",
             data_schema=vol.Schema({
                 vol.Required(
-                    "location",
-                    default=self._location
+                    "longitude",
+                    default=self._longitude
+                ): str,
+                vol.Required(
+                    "latitude",
+                    default=self._latitude
                 ): str,
             }),
             errors={'base': reason},
@@ -241,7 +275,8 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_JWT_SUB: self._jwt_sub,
                 CONF_JWT_KID: self._jwt_kid,
                 CONF_HOST: self._host,
-                CONF_LOCATION: self._location,
+                CONF_LONGITUDE: self._longitude,
+                CONF_LATITUDE: self._latitude,
                 CONF_DISASTERLEVEL: self._disasterlevel,
                 CONF_DISASTERMSG: self._disastermsg,
             })

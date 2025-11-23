@@ -48,7 +48,8 @@ import homeassistant.util.dt as dt_util
 from .heweather.const import (
     DOMAIN,
     CONF_AUTH_METHOD,
-    CONF_LOCATION,
+    CONF_LONGITUDE,
+    CONF_LATITUDE,
     CONF_HOST,
     CONF_KEY,
     CONF_JWT_SUB,
@@ -67,7 +68,8 @@ HOURLY_TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
 DEFAULT_TIME = dt_util.now()
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_LOCATION): cv.string,
+    vol.Required(CONF_LONGITUDE): cv.string,
+    vol.Required(CONF_LATITUDE): cv.string,
     vol.Required(CONF_HOST, default=DEFAULT_HOST): cv.string,
     vol.Required(CONF_KEY): cv.string,
 })
@@ -111,20 +113,21 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
     """Set up the hefeng weather."""
     _LOGGER.info("setup platform weather.Heweather...")
 
-    location = config_entry.data.get(CONF_LOCATION)
+    longitude = config_entry.data.get(CONF_LONGITUDE)
+    latitude = config_entry.data.get(CONF_LATITUDE)
     host = config_entry.data.get(CONF_HOST)
     auth_method = config_entry.data.get(CONF_AUTH_METHOD)
     if auth_method == "key":
         key = config_entry.data.get(CONF_KEY)
-        data = WeatherData(hass, location, host, key=key)
+        data = WeatherData(hass, longitude, latitude, host, key=key)
     else:
         # HeWeather Certification
         heweather_cert = hass.data[DOMAIN].get('heweather_cert', None)
         jwt_sub = config_entry.data.get(CONF_JWT_SUB)
         jwt_kid = config_entry.data.get(CONF_JWT_KID)
-        data = WeatherData(hass, location, host, heweather_cert=heweather_cert, jwt_sub=jwt_sub, jwt_kid=jwt_kid)
+        data = WeatherData(hass, longitude, latitude, host, heweather_cert=heweather_cert, jwt_sub=jwt_sub, jwt_kid=jwt_kid)
 
-    weather = HeWeather(data, location)
+    weather = HeWeather(data, longitude, latitude)
     await weather.async_update_data(dt_util.now())
     async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
 
@@ -135,14 +138,15 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
     """Set up the hefeng weather."""
     _LOGGER.info("setup platform weather.Heweather...")
 
-    location = config.get(CONF_LOCATION)
+    longitude = config.get(CONF_LONGITUDE)
+    latitude = config.get(CONF_LATITUDE)
     host = config.get(CONF_HOST)
     key = config.get(CONF_KEY)
-    data = WeatherData(hass, location, host, key=key)
-    weather = HeWeather(data, location)
+    data = WeatherData(hass, longitude, latitude, host, key=key)
+    weather = HeWeather(data, longitude, latitude)
     await weather.async_update_data(dt_util.now())
     async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
- 
+
     async_add_devices([weather], True)
 
 
@@ -155,7 +159,7 @@ class HeWeather(WeatherEntity):
     _attr_native_wind_speed_unit = UnitOfSpeed.KILOMETERS_PER_HOUR
     _attr_native_visibility_unit = UnitOfLength.KILOMETERS
 
-    def __init__(self, data, location):
+    def __init__(self, data, longitude, latitude):
         """Initialize the  weather."""
         #self._name = None
         self._object_id = 'localweather'
@@ -175,7 +179,7 @@ class HeWeather(WeatherEntity):
 
         self._data = data
         self._updatetime = None
-        self._attr_unique_id = 'localweather_'+location
+        self._attr_unique_id = f"localweather_{longitude}_{latitude}"
 
         self._attr_supported_features = 0
         self._attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
@@ -350,9 +354,10 @@ class HeWeather(WeatherEntity):
 class WeatherData():
     """天气相关的数据，存储在这个类中."""
 
-    def __init__(self, hass, location, host, key=None, heweather_cert=None, jwt_sub=None, jwt_kid=None):
+    def __init__(self, hass, longitude, latitude, host, key=None, heweather_cert=None, jwt_sub=None, jwt_kid=None):
         """初始化函数."""
         self._hass = hass
+        location = f"{longitude},{latitude}"
 
         if key is not None:
             self._is_jwt = False
