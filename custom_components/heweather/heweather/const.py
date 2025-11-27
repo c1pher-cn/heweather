@@ -16,7 +16,7 @@ DEFAULT_HOST = "devapi.qweather.com"
 
 CONF_DISASTERLEVEL = "disasterlevel"
 CONF_DISASTERMSG = "disastermsg"
-CONF_SENSOR_LIST = ["air","comf","cw","drsg","flu","sport","trav","uv","sunglass","guomin","liangshai","jiaotong","fangshai","kongtiao","disaster_warn","temprature","humidity","category","feelsLike","text","windDir","windScale","windSpeed","pressure","vis","cloud","dew","precip","qlty","level","primary","pm25","pm10","co","so2","no2","o3"]
+CONF_SENSOR_LIST = ["air","comf","cw","drsg","flu","sport","trav","uv","sunglass","guomin","liangshai","jiaotong","fangshai","kongtiao","disaster_warn","temprature","humidity","category","feelsLike","text","windDir","windScale","windSpeed","pressure","vis","cloud","dew","precip","qlty","level","primary","pm2p5","pm10","co","so2","no2","o3"]
 
 # config flow
 DEFAULT_AUTH_METHOD: str = "key"
