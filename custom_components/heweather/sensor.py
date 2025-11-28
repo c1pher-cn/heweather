@@ -77,7 +77,7 @@ OPTIONS = {
     "primary": ["Heweather_primary", "空气质量的主要污染物", "mdi:weather-dust", " "],
     "category": ["Heweather_category", "空气质量指数级别", "mdi:walk", " "],
     "level": ["Heweather_level", "空气质量指数等级", "mdi:walk", " "],
-    "pm25": ["Heweather_pm25", "PM2.5", "mdi:walk", " "],
+    "pm2p5": ["Heweather_pm25", "PM2.5", "mdi:walk", " "],
     "pm10": ["Heweather_pm10", "PM10", "mdi:walk", " "],
     "no2": ["Heweather_no2", "二氧化氮", "mdi:emoticon-dead", " "],
     "so2": ["Heweather_so2", "二氧化硫", "mdi:emoticon-dead", " "],
@@ -275,8 +275,8 @@ class HeweatherWeatherSensor(Entity):
             self._state = self._weather_data.level
         elif self._type == "pm10":
             self._state = self._weather_data.pm10
-        elif self._type == "pm25":
-            self._state = self._weather_data.pm25
+        elif self._type == "pm2p5":
+            self._state = self._weather_data.pm2p5
         elif self._type == "no2":
             self._state = self._weather_data.no2
         elif self._type == "so2":
@@ -343,7 +343,7 @@ class HeweatherWeatherSensor(Entity):
             self._attributes["states"] = self._suggestion_data.jiaotong[1]
 
         # 设置污染物单位
-        pollutant_types = {"pm10", "pm25", "no2", "so2", "co", "o3", "no", "nmhc"}
+        pollutant_types = {"pm10", "pm2p5", "no2", "so2", "co", "o3", "no", "nmhc"}
         if self._type in pollutant_types:
             unit = getattr(self._weather_data, f"{self._type}_unit", None)
             if unit:
@@ -399,7 +399,7 @@ class WeatherData(object):
 
 
 
-        self._pm25 = None
+        self._pm2p5 = None
         self._no2 = None
         self._so2 = None
         self._co = None
@@ -408,7 +408,7 @@ class WeatherData(object):
         self._nmhc = None
         # 新 API 单位不固定，动态获取
         self._pm10_unit = None
-        self._pm25_unit = None
+        self._pm2p5_unit = None
         self._no2_unit = None
         self._so2_unit = None
         self._co_unit = None
@@ -495,13 +495,13 @@ class WeatherData(object):
         return self._dew
 
     @property
-    def pm25(self):
+    def pm2p5(self):
         """pm2.5"""
-        return self._pm25
+        return self._pm2p5
 
     @property
-    def pm25_unit(self):
-        return self._pm25_unit
+    def pm2p5_unit(self):
+        return self._pm2p5_unit
 
     @property
     def pm10(self):
