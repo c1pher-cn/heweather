@@ -143,10 +143,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         weather_data = WeatherData(hass, longitude, latitude, host, disastermsg, disasterlevel, heweather_cert=heweather_cert, jwt_sub=jwt_sub, jwt_kid=jwt_kid)
 
     await weather_data.async_update(dt_util.now())
-    async_track_time_interval(hass, weather_data.async_update, WEATHER_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+    config_entry.async_on_unload(async_track_time_interval(hass, weather_data.async_update, WEATHER_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True))
 
     await suggestion_data.async_update(dt_util.now())
-    async_track_time_interval(hass, suggestion_data.async_update, LIFESUGGESTION_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+    config_entry.async_on_unload(async_track_time_interval(hass, suggestion_data.async_update, LIFESUGGESTION_TIME_BETWEEN_UPDATES, cancel_on_shutdown=True))
 
     dev = []
     for option in CONF_SENSOR_LIST:

@@ -129,7 +129,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 
     weather = HeWeather(data, longitude, latitude)
     await weather.async_update_data(dt_util.now())
-    async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True)
+    config_entry.async_on_unload(async_track_time_interval(hass, weather.async_update_data, TIME_BETWEEN_UPDATES, cancel_on_shutdown=True))
 
     async_add_entities([weather], True)
 
