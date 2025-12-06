@@ -645,7 +645,21 @@ class WeatherData(object):
 
         allmsg=''
         titlemsg=''
-        for i in disaster_warn:
+        # Normalize disaster_warn into a list for safe iteration
+        if disaster_warn is None:
+            alerts = []
+        elif isinstance(disaster_warn, dict):
+            alerts = [disaster_warn]
+        elif isinstance(disaster_warn, list):
+            alerts = disaster_warn
+        else:
+            # Unexpected type: try to coerce to list if possible, else empty
+            try:
+                alerts = list(disaster_warn)
+            except Exception:
+                alerts = []
+
+        for i in alerts:
             #if DISASTER_LEVEL[i["severity"]] >= 订阅等级:
             severity = i.get("severity", "").lower()
             if severity in DISASTER_LEVEL and (DISASTER_LEVEL[severity] >= int(self._disasterlevel)):
