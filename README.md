@@ -47,6 +47,41 @@
    只显示标题即只在灾害预警text中透出灾害标题，显示标题+明细信息则会在text中透出全部信息（会比较长）
 
 
+## 一小时天气预警
+
+需要自己在template里配置一个sensor模板，可以参考我的配置（读取小时级天气预报，然后判断是否有雨雪天气，有的话sensor的状态会被置为on，同时sensor的states的值即为具体的天气信息和降水概率）
+
+<code>
+  template:
+  - trigger:
+      - platform: time_pattern
+        hours: "*"
+    action:
+      - service: weather.get_forecasts
+        target:
+          entity_id: weather.he_feng_tian_qi
+        data:
+          type: hourly
+        response_variable: forecast
+    sensor:
+      - name: heweather_rain_warn
+        unique_id: heweather_rain_warn
+        state: >
+           {% if forecast['weather.he_feng_tian_qi'].forecast[0].condition in ('sunny','cloudy','partlycloudy','windy') %}
+           off
+           {% else %}
+           on
+           {% endif %}
+        attributes:
+          states: >
+                   {% if forecast['weather.he_feng_tian_qi'].forecast[0].condition in ('sunny','cloudy','partlycloudy','windy') %}
+                    未来一小时，天气{{ forecast['weather.he_feng_tian_qi'].forecast[0].text }}，没有降雨
+                   {% else %}
+                    接下来一小时会有{{ forecast['weather.he_feng_tian_qi'].forecast[0].text }}，降水概率为 {{ forecast['weather.he_feng_tian_qi'].forecast[0].precipitation_probability}}%
+                   {% endif %}
+</code>
+
+
 
 ## 自动化配置实例
 
