@@ -6,7 +6,11 @@
         "error": {
             "empty_location": "经度和纬度不能为空",
             "invalid_longitude": "经度格式不正确，必须是-180到180之间的数字",
-            "invalid_latitude": "纬度格式不正确，必须是-90到90之间的数字"
+            "invalid_latitude": "纬度格式不正确，必须是-90到90之间的数字",
+            "key is empty": "API KEY不能为空",
+            "host is empty": "API Host不能为空",
+            "jwt_sub is empty": "项目ID不能为空",
+            "jwt_kid is empty": "凭据ID不能为空"
         },
         "flow_title": "和风天气",
         "step": {
@@ -46,6 +50,69 @@
                 "title": "灾害预警",
                 "description": "请设置灾害预警的相关参数。",
                 "data": {
+                    "disasterlevel": "预警级别",
+                    "disastermsg": "预警类型"
+                }
+            }
+        }
+    },
+    "options": {
+        "error": {
+            "empty_location": "经度和纬度不能为空",
+            "invalid_longitude": "经度格式不正确，必须是-180到180之间的数字",
+            "invalid_latitude": "纬度格式不正确，必须是-90到90之间的数字",
+            "key is empty": "API KEY不能为空",
+            "host is empty": "API Host不能为空",
+            "jwt_sub is empty": "项目ID不能为空",
+            "jwt_kid is empty": "凭据ID不能为空"
+        },
+        "step": {
+            "auth_method_config": {
+                "title": "更新身份认证方式",
+                "description": "请选择使用的身份认证方式。\r\n**注意：根据和风天气官方说明，从2027年1月1日起，使用API KEY认证方式都将受请求量的限制。**",
+                "data": {
+                    "auth_method": "认证方式"
+                }
+            },
+            "auth_apikey_config": {
+                "title": "更新API KEY认证",
+                "description": "请输入和风天气的API KEY和API Host。\r\n**注意：根据和风天气官方说明，从2027年1月1日起，使用API KEY认证方式都将受请求量的限制。**",
+                "data": {
+                    "key": "API KEY",
+                    "host": "API Host"
+                }
+            },
+            "auth_jwt_config": {
+                "title": "更新JWT认证",
+                "description": "请将公钥\n```\n{jwt_pubkey}\n```\n上传至和风天气开发控制台，并输入对应的项目ID、凭据ID和API Host。",
+                "data": {
+                    "jwt_sub": "项目ID",
+                    "jwt_kid": "凭据ID",
+                    "host": "API Host"
+                }
+            },
+            "location_config": {
+                "title": "更新位置设置",
+                "description": "请输入经纬度坐标。经度范围：-180到180，纬度范围：-90到90。坐标将保留4位小数精度。",
+                "data": {
+                    "longitude": "经度",
+                    "latitude": "纬度"
+                }
+            },
+            "disaster_config": {
+                "title": "更新灾害预警",
+                "description": "请设置灾害预警的相关参数。",
+                "data": {
+                    "disasterlevel": "预警级别",
+                    "disastermsg": "预警类型"
+                }
+            },
+            "user": {
+                "title": "配置更新",
+                "description": "请更新和风天气集成的配置。",
+                "data": {
+                    "longitude": "经度",
+                    "latitude": "纬度",
                     "disasterlevel": "预警级别",
                     "disastermsg": "预警类型"
                 }
