@@ -153,6 +153,7 @@ def validate_latitude(lat: str) -> bool:
 class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     MINOR_VERSION = 1
+    SUPPORT_MULTIPLE_ENTRIES = True
 
     @staticmethod
     @callback
@@ -194,8 +195,8 @@ class HeWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: Optional[dict] = None
     ):
-        if self._async_current_entries():
-            return self.async_abort(reason="single_instance_allowed")
+        #if self._async_current_entries():
+        #    return self.async_abort(reason="single_instance_allowed")
 
         self.hass.data.setdefault(DOMAIN, {})
         if not self._storage_path:
