@@ -183,15 +183,17 @@ async def async_setup_platform(hass, config, async_add_devices, discovery_info=N
 
 class HeweatherWeatherSensor(Entity):
     """定义一个温度传感器的类，继承自HomeAssistant的Entity类."""
-
+    _attr_has_entity_name = True
+    
     def __init__(self, weather_data, suggestion_data, option, longitude, latitude):
         """初始化."""
         self._weather_data = weather_data
         self._suggestion_data = suggestion_data
         self._object_id = OPTIONS[option][0]
-        self._name = OPTIONS[option][1]
+        self._name = OPTIONS[option][1] #中文
         self._icon = OPTIONS[option][2]
         self._unit_of_measurement = OPTIONS[option][3]
+        self._has_entity_name
 
         self._type = option
         self._state = None
@@ -203,7 +205,12 @@ class HeweatherWeatherSensor(Entity):
     def extra_state_attributes(self):
         """Return entity specific state attributes."""
         return self._attributes
-
+        
+    @property
+    def translation_key(self):
+        """Return the translation key to translate the entity's name and states."""
+        return self._object_id
+    
     @property
     def name(self):
         """返回实体的名字."""
