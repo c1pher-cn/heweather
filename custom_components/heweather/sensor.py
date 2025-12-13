@@ -62,31 +62,31 @@ WEATHER_TIME_BETWEEN_UPDATES = timedelta(seconds=600)
 LIFESUGGESTION_TIME_BETWEEN_UPDATES = timedelta(seconds=7200)
 
 OPTIONS = {
-    "temprature": ["Heweather_temperature", "室外温度", "mdi:thermometer", UnitOfTemperature.CELSIUS],
-    "humidity": ["Heweather_humidity", "室外湿度", "mdi:water-percent", PERCENTAGE],
-    "feelsLike": ["Heweather_feelsLike", "体感温度", "mdi:thermometer", UnitOfTemperature.CELSIUS],
-    "text": ["Heweather_text", "天气描述", "mdi:thermometer", ' '],
-    "precip": ["Heweather_precip", "小时降水量", "mdi:weather-rainy", UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR],
-    "windDir": ["Heweather_windDir", "风向", "mdi:windsock", ' '],
-    "windScale": ["Heweather_windScale", "风力等级", "mdi:weather-windy", ' '],
-    "windSpeed": ["Heweather_windSpeed", "风速", "mdi:weather-windy", UnitOfSpeed.KILOMETERS_PER_HOUR],
-    "dew": ["Heweather_dew", "露点温度", "mdi:thermometer-water", ' '],
-    "pressure": ["Heweather_pressure", "大气压强", "mdi:thermometer", UnitOfPressure.HPA],
-    "vis": ["Heweather_vis", "能见度", "mdi:thermometer", UnitOfLength.KILOMETERS],
-    "cloud": ["Heweather_cloud", "云量", "mdi:cloud-percent", PERCENTAGE],
-    "primary": ["Heweather_primary", "空气质量的主要污染物", "mdi:weather-dust", " "],
-    "category": ["Heweather_category", "空气质量指数级别", "mdi:walk", " "],
-    "level": ["Heweather_level", "空气质量指数等级", "mdi:walk", " "],
-    "pm2p5": ["Heweather_pm25", "PM2.5", "mdi:walk", " "],
-    "pm10": ["Heweather_pm10", "PM10", "mdi:walk", " "],
-    "no2": ["Heweather_no2", "二氧化氮", "mdi:emoticon-dead", " "],
-    "so2": ["Heweather_so2", "二氧化硫", "mdi:emoticon-dead", " "],
-    "co": ["Heweather_co", "一氧化碳", "mdi:molecule-co", " "],
-    "o3": ["Heweather_o3", "臭氧", "mdi:weather-cloudy", " "],
-    "no": ["Heweather_no", "一氧化氮", "mdi:emoticon-dead", " "],
-    "nmhc": ["Heweather_nmhc", "非甲烷总烃", "mdi:emoticon-dead", " "],
-    "qlty": ["Heweather_qlty", "综合空气质量", "mdi:quality-high", " "],
-    "disaster_warn": ["Heweather_disaster_warn", "灾害预警", "mdi:alert", " "],
+    "temprature": ["heweather_temperature", "室外温度", "mdi:thermometer", UnitOfTemperature.CELSIUS],
+    "humidity": ["heweather_humidity", "室外湿度", "mdi:water-percent", PERCENTAGE],
+    "feelsLike": ["heweather_feelsLike", "体感温度", "mdi:thermometer", UnitOfTemperature.CELSIUS],
+    "text": ["heweather_text", "天气描述", "mdi:thermometer", ' '],
+    "precip": ["heweather_precip", "小时降水量", "mdi:weather-rainy", UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR],
+    "windDir": ["heweather_windDir", "风向", "mdi:windsock", ' '],
+    "windScale": ["heweather_windScale", "风力等级", "mdi:weather-windy", ' '],
+    "windSpeed": ["heweather_windSpeed", "风速", "mdi:weather-windy", UnitOfSpeed.KILOMETERS_PER_HOUR],
+    "dew": ["heweather_dew", "露点温度", "mdi:thermometer-water", ' '],
+    "pressure": ["heweather_pressure", "大气压强", "mdi:thermometer", UnitOfPressure.HPA],
+    "vis": ["heweather_vis", "能见度", "mdi:thermometer", UnitOfLength.KILOMETERS],
+    "cloud": ["heweather_cloud", "云量", "mdi:cloud-percent", PERCENTAGE],
+    "primary": ["heweather_primary", "空气质量的主要污染物", "mdi:weather-dust", " "],
+    "category": ["heweather_category", "空气质量指数级别", "mdi:walk", " "],
+    "level": ["heweather_level", "空气质量指数等级", "mdi:walk", " "],
+    "pm2p5": ["heweather_pm25", "PM2.5", "mdi:walk", " "],
+    "pm10": ["heweather_pm10", "PM10", "mdi:walk", " "],
+    "no2": ["heweather_no2", "二氧化氮", "mdi:emoticon-dead", " "],
+    "so2": ["heweather_so2", "二氧化硫", "mdi:emoticon-dead", " "],
+    "co": ["heweather_co", "一氧化碳", "mdi:molecule-co", " "],
+    "o3": ["heweather_o3", "臭氧", "mdi:weather-cloudy", " "],
+    "no": ["heweather_no", "一氧化氮", "mdi:emoticon-dead", " "],
+    "nmhc": ["heweather_nmhc", "非甲烷总烃", "mdi:emoticon-dead", " "],
+    "qlty": ["heweather_qlty", "综合空气质量", "mdi:quality-high", " "],
+    "disaster_warn": ["heweather_disaster_warn", "灾害预警", "mdi:alert", " "],
 
     "air": ["suggestion_air", "空气污染扩散条件指数", "mdi:air-conditioner", " "],
     "comf": ["suggestion_comf", "舒适度指数", "mdi:human-greeting", " "],
@@ -190,10 +190,10 @@ class HeweatherWeatherSensor(Entity):
         self._weather_data = weather_data
         self._suggestion_data = suggestion_data
         self._object_id = OPTIONS[option][0]
-        self._name = OPTIONS[option][1] #中文
+        self._name = OPTIONS[option][0] #原来是1中文,变成0英文增加翻译
         self._icon = OPTIONS[option][2]
         self._unit_of_measurement = OPTIONS[option][3]
-        self._has_entity_name
+        #self._has_entity_name
 
         self._type = option
         self._state = None
