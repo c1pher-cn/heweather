@@ -4,21 +4,123 @@
             "heweather_temperature": {
                 "name": "室外温度"
             },
-            "Heweather_text": {
+              "heweather_humidity": {
+                "name": "室外湿度"
+              },
+              "heweather_feelsLike": {
+                "name": "体感温度"
+              },
+              "heweather_text": {
                 "name": "天气描述"
-            },
-            "suggestion_cw": {
+              },
+              "heweather_precip": {
+                "name": "小时降水量"
+              },
+              "heweather_windDir": {
+                "name": "风向"
+              },
+              "heweather_windScale": {
+                "name": "风力等级"
+              },
+              "heweather_windSpeed": {
+                "name": "风速"
+              },
+              "heweather_dew": {
+                "name": "露点温度"
+              },
+              "heweather_pressure": {
+                "name": "大气压强"
+              },
+              "heweather_vis": {
+                "name": "能见度"
+              },
+              "heweather_cloud": {
+                "name": "云量"
+              },
+        
+              "heweather_primary": {
+                "name": "空气质量主要污染物"
+              },
+              "heweather_category": {
+                "name": "空气质量指数级别"
+              },
+              "heweather_level": {
+                "name": "空气质量指数等级"
+              },
+              "heweather_pm25": {
+                "name": "PM2.5"
+              },
+              "heweather_pm10": {
+                "name": "PM10"
+              },
+              "heweather_no2": {
+                "name": "二氧化氮"
+              },
+              "heweather_so2": {
+                "name": "二氧化硫"
+              },
+              "heweather_co": {
+                "name": "一氧化碳"
+              },
+              "heweather_o3": {
+                "name": "臭氧"
+              },
+              "heweather_no": {
+                "name": "一氧化氮"
+              },
+              "heweather_nmhc": {
+                "name": "非甲烷总烃"
+              },
+              "heweather_qlty": {
+                "name": "综合空气质量"
+              },
+        
+              "heweather_disaster_warn": {
+                "name": "灾害预警"
+              },
+        
+              "suggestion_air": {
+                "name": "空气污染扩散条件指数"
+              },
+              "suggestion_comf": {
+                "name": "舒适度指数"
+              },
+              "suggestion_cw": {
                 "name": "洗车指数"
-            },
-            "suggestion_drsg": {
+              },
+              "suggestion_drsg": {
                 "name": "穿衣指数"
-            },
-            "suggestion_flu": {
+              },
+              "suggestion_flu": {
                 "name": "感冒指数"
-            },
-            "suggestion_sport": {
+              },
+              "suggestion_sport": {
                 "name": "运动指数"
-            },
+              },
+              "suggestion_trav": {
+                "name": "旅行指数"
+              },
+              "suggestion_uv": {
+                "name": "紫外线指数"
+              },
+              "suggestion_guomin": {
+                "name": "过敏指数"
+              },
+              "suggestion_kongtiao": {
+                "name": "空调开启指数"
+              },
+              "suggestion_sunglass": {
+                "name": "太阳镜指数"
+              },
+              "suggestion_fangshai": {
+                "name": "防晒指数"
+              },
+              "suggestion_liangshai": {
+                "name": "晾晒指数"
+              },
+              "suggestion_jiaotong": {
+                "name": "交通指数"
+              }
         }
     },
     "config": {
