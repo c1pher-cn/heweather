@@ -190,10 +190,9 @@ class HeweatherWeatherSensor(Entity):
         self._weather_data = weather_data
         self._suggestion_data = suggestion_data
         self._object_id = OPTIONS[option][0]
-        self._name = OPTIONS[option][0] #原来是1中文,变成0英文增加翻译
+        #self._name = OPTIONS[option][0] #原来是1中文,变成0英文增加翻译
         self._icon = OPTIONS[option][2]
         self._unit_of_measurement = OPTIONS[option][3]
-        #self._has_entity_name
 
         self._type = option
         self._state = None
@@ -211,10 +210,10 @@ class HeweatherWeatherSensor(Entity):
         """Return the translation key to translate the entity's name and states."""
         return self._object_id
     
-    @property
-    def name(self):
-        """返回实体的名字."""
-        return self._name
+    #@property
+    #def name(self):
+    #    """返回实体的名字."""
+    #    return self._name
 
     #@property
     #def registry_name(self):
