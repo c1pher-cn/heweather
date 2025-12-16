@@ -397,7 +397,7 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
+        self._config_entry = config_entry
         self._auth_method = config_entry.data.get(CONF_AUTH_METHOD, DEFAULT_AUTH_METHOD)
         self._jwt_pubkey = ""
         self._heweather_cert = None
@@ -466,8 +466,8 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
 
     def _get_apikey_schema(self):
         """Get API key configuration schema."""
-        current_key = self.config_entry.data.get(CONF_KEY, "")
-        current_host = self.config_entry.data.get(CONF_HOST, DEFAULT_HOST)
+        current_key = self._config_entry.data.get(CONF_KEY, "")
+        current_host = self._config_entry.data.get(CONF_HOST, DEFAULT_HOST)
         
         return vol.Schema({
             vol.Required(
@@ -515,7 +515,7 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
         # Get HeWeather cert instance and public key
         if not self._heweather_cert:
             # Get the cert instance from hass data
-            storage_path = self.config_entry.data.get(CONF_STORAGE_PATH)
+            storage_path = self._config_entry.data.get(CONF_STORAGE_PATH)
             if storage_path:
                 self.hass.data.setdefault(DOMAIN, {})
                 self._heweather_cert = self.hass.data[DOMAIN].get('heweather_cert', None)
@@ -541,9 +541,9 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
 
     def _get_jwt_schema(self):
         """Get JWT configuration schema."""
-        current_jwt_sub = self.config_entry.data.get(CONF_JWT_SUB, "")
-        current_jwt_kid = self.config_entry.data.get(CONF_JWT_KID, "")
-        current_host = self.config_entry.data.get(CONF_HOST, DEFAULT_HOST)
+        current_jwt_sub = self._config_entry.data.get(CONF_JWT_SUB, "")
+        current_jwt_kid = self._config_entry.data.get(CONF_JWT_KID, "")
+        current_host = self._config_entry.data.get(CONF_HOST, DEFAULT_HOST)
         
         return vol.Schema({
             vol.Required(
@@ -599,8 +599,8 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
 
     def _get_location_schema(self):
         """Get location configuration schema."""
-        current_longitude = self.config_entry.data.get(CONF_LONGITUDE, "")
-        current_latitude = self.config_entry.data.get(CONF_LATITUDE, "")
+        current_longitude = self._config_entry.data.get(CONF_LONGITUDE, "")
+        current_latitude = self._config_entry.data.get(CONF_LATITUDE, "")
         
         return vol.Schema({
             vol.Required(
@@ -627,8 +627,8 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
 
     def _get_disaster_schema(self):
         """Get disaster configuration schema."""
-        current_disasterlevel = self.config_entry.data.get(CONF_DISASTERLEVEL, DEFAULT_DISASTER_LEVEL_CONF)
-        current_disastermsg = self.config_entry.data.get(CONF_DISASTERMSG, DEFAULT_DISASTER_MSG)
+        current_disasterlevel = self._config_entry.data.get(CONF_DISASTERLEVEL, DEFAULT_DISASTER_LEVEL_CONF)
+        current_disastermsg = self._config_entry.data.get(CONF_DISASTERMSG, DEFAULT_DISASTER_MSG)
         
         return vol.Schema({
             vol.Required(
@@ -644,8 +644,8 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
     async def options_flow_done(self):
         """Create the updated config entry."""
         # Get old location data for cleanup
-        old_longitude = self.config_entry.data.get(CONF_LONGITUDE)
-        old_latitude = self.config_entry.data.get(CONF_LATITUDE)
+        old_longitude = self._config_entry.data.get(CONF_LONGITUDE)
+        old_latitude = self._config_entry.data.get(CONF_LATITUDE)
         
         # Check if location has changed
         location_changed = (
@@ -654,9 +654,10 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
         )
         
         # Build the updated data based on auth method
+        # Preserve existing auth data when switching methods
         updated_data = {
             CONF_AUTH_METHOD: self._auth_method,
-            CONF_STORAGE_PATH: self.config_entry.data.get(CONF_STORAGE_PATH),
+            CONF_STORAGE_PATH: self._config_entry.data.get(CONF_STORAGE_PATH),
             CONF_LONGITUDE: self._longitude,
             CONF_LATITUDE: self._latitude,
             CONF_DISASTERLEVEL: self._disasterlevel,
@@ -664,15 +665,17 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
         }
 
         if self._auth_method == "key":
+            # Update API key settings, preserve existing JWT settings
             updated_data.update({
                 CONF_KEY: self._key,
                 CONF_HOST: self._host,
-                CONF_JWT_SUB: "",
-                CONF_JWT_KID: "",
+                CONF_JWT_SUB: self._config_entry.data.get(CONF_JWT_SUB, ""),
+                CONF_JWT_KID: self._config_entry.data.get(CONF_JWT_KID, ""),
             })
         else:
+            # Update JWT settings, preserve existing API key settings
             updated_data.update({
-                CONF_KEY: "",
+                CONF_KEY: self._config_entry.data.get(CONF_KEY, ""),
                 CONF_HOST: self._host,
                 CONF_JWT_SUB: self._jwt_sub,
                 CONF_JWT_KID: self._jwt_kid,
@@ -683,22 +686,22 @@ class HeWeatherOptionsFlow(config_entries.OptionsFlow):
             _LOGGER.info(f"Location changed from ({old_longitude}, {old_latitude}) to ({self._longitude}, {self._latitude})")
             # 先尝试迁移实体
             await migrate_entities_for_location_change(
-                self.hass, self.config_entry,
+                self.hass, self._config_entry,
                 old_longitude, old_latitude,
                 self._longitude, self._latitude
             )
         
         # Always check for and clean up duplicate entities
-        await cleanup_duplicate_entities(self.hass, self.config_entry)
+        await cleanup_duplicate_entities(self.hass, self._config_entry)
 
         # Update the config entry data directly
         self.hass.config_entries.async_update_entry(
-            self.config_entry, data=updated_data
+            self._config_entry, data=updated_data
         )
         
         # For options flow, we should reload the entry to apply changes
         # 重新加载会创建新实体（如果迁移失败的话）
-        await self.hass.config_entries.async_reload(self.config_entry.entry_id)
+        await self.hass.config_entries.async_reload(self._config_entry.entry_id)
         
         # Return empty result to indicate successful update
         return self.async_create_entry(title="", data={})
