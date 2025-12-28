@@ -21,27 +21,43 @@
 3.appkey申请需要先[创建项目](https://console.qweather.com/project?lang=zh),后选创建凭据，建议选择 JSON Web Token (JWT) ,公钥见第5步
 
 4.在HACS商店中搜索heweather,找到本插件并下载
+
 <img width="1671" height="299" alt="image" src="https://github.com/user-attachments/assets/45aa3754-4c9b-411e-b168-603835d58b9a" />
 
-5.设置->设备与服务->添加集成->搜索heweather->选择本插件
-<img width="581" height="350" alt="image" src="https://github.com/user-attachments/assets/2f7c4f00-894a-4bc1-8fab-6b295c57accc" />
+5.设置->设备与服务->添加集成->搜索heweather->选择本插件，同时建议使用JWT凭证，（API模式将在2027年废弃）。
 
-  建议使用JWT凭证，（API模式将在2027年废弃）
+<img width="581" height="350" alt="image" src="https://github.com/user-attachments/assets/2f7c4f00-894a-4bc1-8fab-6b295c57accc" />
+<img width="667" height="417" alt="image" src="https://github.com/user-attachments/assets/66e1acbe-4e6f-490b-a797-ea2e9837b625" />
+<img width="571" height="635" alt="image" src="https://github.com/user-attachments/assets/90d51643-0f42-4aec-8f7a-dd5179135413" />
+
+  
   项目id点击已创建的项目后可见。
+  
   凭据id在创建凭据后可见，创建JWT凭据时粘贴ha页面显示的公钥即可。
+  
   <img width="1610" height="653" alt="image" src="https://github.com/user-attachments/assets/47748808-b52c-4980-b38d-df42a4b17277" />
+  
   HOST地址见设置页面
+  
   <img width="1086" height="345" alt="image" src="https://github.com/user-attachments/assets/5ab678ab-09d0-4a83-8635-9a32432606dd" />
+  
   国内的城市区域location、经纬度关系：
+  
   https://github.com/qwd/LocationList/blob/master/China-City-List-latest.csv
+
 
 6. 关注的自然灾害等级，1-6为从轻微到严重， 代表在灾害预警里你关注的灾害等级。
    
     "Standard": "标准的",
+
     "Minor": "次要的",
+   
     "Moderate": "中等的",
+   
     "Major": "主要",
+   
     "Severe": "严重",
+   
     "Extreme": "极端"
    
    只显示标题即只在灾害预警text中透出灾害标题，显示标题+明细信息则会在text中透出全部信息（会比较长）
