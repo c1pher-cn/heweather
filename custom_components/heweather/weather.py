@@ -161,6 +161,12 @@ class HeWeather(WeatherEntity):
 
     def __init__(self, data, longitude, latitude):
         """Initialize the  weather."""
+        # 【新增】开启实体命名支持
+        self._attr_has_entity_name = True
+        
+        # 【新增】设置英文名，这样生成的 ID 就是 weather.home_heweather
+        self._attr_name = "heweather"
+        
         #self._name = None
         self._object_id = 'localweather'
         self._condition = None
@@ -185,11 +191,20 @@ class HeWeather(WeatherEntity):
         self._attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
         self._attr_supported_features |= WeatherEntityFeature.FORECAST_HOURLY
 
-
     @property
-    def name(self):
-        """返回实体的名字."""
-        return '和风天气'
+    def device_info(self):
+        """Return the device info."""
+        return {
+            "identifiers": {(DOMAIN, f"{self._data._params['location']}")},
+            "name": "和风天气",
+            "manufacturer": "QWeather",
+            "model": "API v7",
+        }
+
+#    @property
+#    def name(self):
+#        """返回实体的名字."""
+#        return '和风天气'
 
     @property
     def should_poll(self):
