@@ -1,0 +1,246 @@
+{
+    "entity": {
+        "sensor": {
+            "heweather_temperature": {
+                "name": "outside temperature"
+            },
+              "heweather_humidity": {
+                "name": "outside humidity"
+              },
+              "heweather_feelsLike": {
+                "name": "feelsLike temperature"
+              },
+              "heweather_text": {
+                "name": "weather text"
+              },
+              "heweather_precip": {
+                "name": "precip"
+              },
+              "heweather_windDir": {
+                "name": "windDir"
+              },
+              "heweather_windScale": {
+                "name": "windScale"
+              },
+              "heweather_windSpeed": {
+                "name": "windSpeed"
+              },
+              "heweather_dew": {
+                "name": "dew temperature"
+              },
+              "heweather_pressure": {
+                "name": "pressure"
+              },
+              "heweather_vis": {
+                "name": "vis"
+              },
+              "heweather_cloud": {
+                "name": "cloud"
+              },
+        
+              "heweather_primary": {
+                "name": "primary"
+              },
+              "heweather_category": {
+                "name": "category"
+              },
+              "heweather_level": {
+                "name": "category level"
+              },
+              "heweather_pm25": {
+                "name": "PM2.5"
+              },
+              "heweather_pm10": {
+                "name": "PM10"
+              },
+              "heweather_no2": {
+                "name": "no2"
+              },
+              "heweather_so2": {
+                "name": "so2"
+              },
+              "heweather_co": {
+                "name": "co"
+              },
+              "heweather_o3": {
+                "name": "o3"
+              },
+              "heweather_no": {
+                "name": "no"
+              },
+              "heweather_nmhc": {
+                "name": "nmhc"
+              },
+              "heweather_qlty": {
+                "name": "qlty"
+              },
+        
+              "heweather_disaster_warn": {
+                "name": "disaster_warn"
+              },
+                      
+              "suggestion_air": {
+                "name": "Air Pollution Dispersion Index"
+              },
+              "suggestion_comf": {
+                "name": "Comfort Index"
+              },
+              "suggestion_cw": {
+                "name": "Car Washing Index"
+              },
+              "suggestion_drsg": {
+                "name": "Dressing Index"
+              },
+              "suggestion_flu": {
+                "name": "Cold/Flu Index"
+              },
+              "suggestion_sport": {
+                "name": "Outdoor Sports Index"
+              },
+              "suggestion_trav": {
+                "name": "Travel Index"
+              },
+              "suggestion_uv": {
+                "name": "UV Index"
+              },
+              "suggestion_guomin": {
+                "name": "Allergy Index"
+              },
+              "suggestion_kongtiao": {
+                "name": "Air Conditioning Usage Index"
+              },
+              "suggestion_sunglass": {
+                "name": "Sunglasses Index"
+              },
+              "suggestion_fangshai": {
+                "name": "Sun Protection Index"
+              },
+              "suggestion_liangshai": {
+                "name": "Clothes Drying Index"
+              },
+              "suggestion_jiaotong": {
+                "name": "Traffic Condition Index"
+              }
+        }
+    },
+    "config": {
+        "abort": {
+            "single_instance_allowed": "single instance allowed。"
+        },
+        "error": {
+            "empty_location": "empty location",
+            "invalid_longitude": "invalid_longitude",
+            "invalid_latitude": "invalid_latitude",
+            "key is empty": "key is empty",
+            "host is empty": "host is empty",
+            "jwt_sub is empty": "jwt_sub is empty",
+            "jwt_kid is empty": "jwt_kid is empty"
+        },
+        "flow_title": "heweather",
+        "step": {
+            "auth_method_config": {
+                "title": "Select your auth method",
+                "description": "Select your auth method. Note: According to the official QWeather notice, starting January 1, 2027, the number of requests using API Key authentication will be subject to limits.",
+                "data": {
+                    "auth_method": "auth method"
+                }
+            },
+            "auth_apikey_config": {
+                "title": "API KEY config",
+                "description": "Please enter the QWeather API Key and API Host. Note: According to the official QWeather notice, starting January 1, 2027, the number of requests using API Key authentication will be subject to limits.",
+                "data": {
+                    "key": "API KEY",
+                    "host": "API Host"
+                }
+            },
+            "auth_jwt_config": {
+                "title": "JWT config",
+                "description": "Please upload the public key\n```\n{jwt_pubkey}\n```\n to the QWeather developer console, then enter the corresponding Project ID, Credential ID, and API Host.",
+                "data": {
+                    "jwt_sub": "Project ID",
+                    "jwt_kid": "Credential ID",
+                    "host": "API Host"
+                }
+            },
+            "location_config": {
+                "title": "location config",
+                "description": "Please enter longitude and latitude coordinates. Longitude range: -180 to 180, latitude range: -90 to 90. Coordinates will be rounded to 4 decimal places.",
+                "data": {
+                    "longitude": "longitude",
+                    "latitude": "latitude"
+                }
+            },
+            "disaster_config": {
+                "title": "disaster config",
+                "description": "please update the disaster config of heweather",
+                "data": {
+                    "disasterlevel": "disaster level",
+                    "disastermsg": "disaster type"
+                }
+            }
+        }
+    },
+    "options": {
+        "error": {
+            "empty_location": "location is empty",
+            "invalid_longitude": "invalid longitude",
+            "invalid_latitude": "invalid latitude",
+            "key is empty": "key is empty",
+            "host is empty": "host is empty",
+            "jwt_sub is empty": "jwt_sub is empty",
+            "jwt_kid is empty": "jwt_kid is empty"
+        },
+        "step": {
+            "auth_method_config": {
+                "title": "Select your auth method",
+                "description": "Select your auth method. Note: According to the official QWeather notice, starting January 1, 2027, the number of requests using API Key authentication will be subject to limits.",
+                "data": {
+                    "auth_method": "auth method"
+                }
+            },
+            "auth_apikey_config": {
+                "title": "Update API KEY",
+                "description": "Please enter the QWeather API Key and API Host. Note: According to the official QWeather notice, starting January 1, 2027, the number of requests using API Key authentication will be subject to limits.",
+                "data": {
+                    "key": "API KEY",
+                    "host": "API Host"
+                }
+            },
+            "auth_jwt_config": {
+                "title": "Update JWT config",
+                "description": "Please upload the public key\n```\n{jwt_pubkey}\n```\n to the QWeather developer console, then enter the corresponding Project ID, Credential ID, and API Host.",
+                "data": {
+                    "jwt_sub": "Project ID",
+                    "jwt_kid": "Credential ID",
+                    "host": "API Host"
+                }
+            },
+            "location_config": {
+                "title": "Update your location",
+                "description": "Please enter longitude and latitude coordinates. Longitude range: -180 to 180, latitude range: -90 to 90. Coordinates will be rounded to 4 decimal places.",
+                "data": {
+                    "longitude": "longitude",
+                    "latitude": "latitude"
+                }
+            },
+            "disaster_config": {
+                "title": "update disaster config",
+                "description": "please update the disaster config of heweather",
+                "data": {
+                    "disasterlevel": "disaster level",
+                    "disastermsg": "disaster type"
+                }
+            },
+            "user": {
+                "title": "update config",
+                "description": "please update the config of heweather",
+                "data": {
+                    "longitude": "longitude",
+                    "latitude": "latitude",
+                    "disasterlevel": "disaster level",
+                    "disastermsg": "disaster type"
+                }
+            }
+        }
+    }
+}
