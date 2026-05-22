@@ -7,7 +7,7 @@
               "heweather_humidity": {
                 "name": "室外湿度"
               },
-              "heweather_feelsLike": {
+              "heweather_feelslike": {
                 "name": "体感温度"
               },
               "heweather_text": {
@@ -16,13 +16,13 @@
               "heweather_precip": {
                 "name": "小时降水量"
               },
-              "heweather_windDir": {
+              "heweather_winddir": {
                 "name": "风向"
               },
-              "heweather_windScale": {
+              "heweather_windscale": {
                 "name": "风力等级"
               },
-              "heweather_windSpeed": {
+              "heweather_windspeed": {
                 "name": "风速"
               },
               "heweather_dew": {
