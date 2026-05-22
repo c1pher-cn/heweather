@@ -7,8 +7,8 @@
               "heweather_humidity": {
                 "name": "outside humidity"
               },
-              "heweather_feelsLike": {
-                "name": "feelsLike temperature"
+              "heweather_feelslike": {
+                "name": "feelslike temperature"
               },
               "heweather_text": {
                 "name": "weather text"
@@ -16,14 +16,14 @@
               "heweather_precip": {
                 "name": "precip"
               },
-              "heweather_windDir": {
-                "name": "windDir"
+              "heweather_winddir": {
+                "name": "winddir"
               },
-              "heweather_windScale": {
-                "name": "windScale"
+              "heweather_windscale": {
+                "name": "windscale"
               },
-              "heweather_windSpeed": {
-                "name": "windSpeed"
+              "heweather_windspeed": {
+                "name": "windspeed"
               },
               "heweather_dew": {
                 "name": "dew temperature"
