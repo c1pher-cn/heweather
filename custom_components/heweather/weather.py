@@ -63,6 +63,25 @@ from .heweather.const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+
+def _format_forecast_time(raw_time, fallback):
+    """预报时间格式化."""
+    # 和风逐日预报带 fxDate，逐小时预报带 fxTime
+    # 原来用实况的观测时间 obsTime 作基准，逐条加一天/一小时
+    # 实况请求失败时 obsTime 不再更新，整张预报表的时间就会倒退
+    # 这里优先使用 API 返回的预报时间，取不到时回退到原来的算法以保持兼容
+    if not raw_time:
+        return fallback.isoformat()
+    try:
+        if "T" in raw_time:
+            return datetime.strptime(raw_time, "%Y-%m-%dT%H:%M%z").isoformat()
+        return datetime.strptime(raw_time, "%Y-%m-%d").replace(
+            tzinfo=fallback.tzinfo
+        ).isoformat()
+    except (TypeError, ValueError):
+        return fallback.isoformat()
+
+
 TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
 HOURLY_TIME_BETWEEN_UPDATES = timedelta(seconds=1800)
 
@@ -296,13 +315,14 @@ class HeWeather(WeatherEntity):
 
     async def async_forecast_daily(self) -> list[Forecast]:
         """Return the daily forecast."""
-        # reftime = datetime.now()
         reftime = self._data._updatetime
+        forecast_times = self._data.forecast_dates
 
         forecast_data = []
-        for entry in self._forecast:
+        for index, entry in enumerate(self._forecast):
+            raw_time = forecast_times[index] if index < len(forecast_times) else None
             data_dict = {
-                ATTR_FORECAST_TIME: reftime.isoformat(),
+                ATTR_FORECAST_TIME: _format_forecast_time(raw_time, reftime),
                 ATTR_FORECAST_CONDITION: entry[0],
                 ATTR_FORECAST_NATIVE_TEMP: entry[1],
                 ATTR_FORECAST_NATIVE_TEMP_LOW: entry[2],
@@ -314,14 +334,15 @@ class HeWeather(WeatherEntity):
         return forecast_data
 
     async def async_forecast_hourly(self) -> list[Forecast]:
-        """Return the daily forecast."""
-        # reftime = datetime.now()
+        """小时预报."""
         reftime = self._data._updatetime
+        forecast_times = self._data.forecast_hourly_times
 
         forecast_hourly_data = []
-        for entry in self._forecast_hourly:
+        for index, entry in enumerate(self._forecast_hourly):
+            raw_time = forecast_times[index] if index < len(forecast_times) else None
             data_dict = {
-                ATTR_FORECAST_TIME: reftime.isoformat(),
+                ATTR_FORECAST_TIME: _format_forecast_time(raw_time, reftime),
                 ATTR_FORECAST_CONDITION: entry[0],
                 ATTR_FORECAST_NATIVE_TEMP: entry[1],
                 ATTR_FORECAST_HUMIDITY: entry[2],
@@ -410,6 +431,8 @@ class WeatherData():
 
         self._forecast = None
         self._forecast_hourly = None
+        self._forecast_dates = []
+        self._forecast_hourly_times = []
         self._updatetime = None
 
 
@@ -484,6 +507,16 @@ class WeatherData():
     def forecast_hourly(self):
         """小时预报."""
         return self._forecast_hourly
+
+    @property
+    def forecast_dates(self):
+        """逐日预报日期."""
+        return self._forecast_dates
+
+    @property
+    def forecast_hourly_times(self):
+        """逐小时预报时间."""
+        return self._forecast_hourly_times
 
     @property
     def updatetime(self):
@@ -617,4 +650,11 @@ class WeatherData():
             [forecast_hourly[22], float(hourlymsg[22]["temp"]), float(hourlymsg[22]["humidity"]), float(hourlymsg[22]["precip"]), hourlymsg[22]["windDir"], int(hourlymsg[22]["windSpeed"]), float(hourlymsg[22]["pop"]), forec_text[22]],
             [forecast_hourly[23], float(hourlymsg[23]["temp"]), float(hourlymsg[23]["humidity"]), float(hourlymsg[23]["precip"]), hourlymsg[23]["windDir"], int(hourlymsg[23]["windSpeed"]), float(hourlymsg[23]["pop"]), forec_text[23]]
         ]
+
+        # 保存 API 返回的预报时间，避免用实况观测时间推算导致预报整体偏移
+        self._forecast_dates = [day.get("fxDate") for day in datemsg[:7]]
+        self._forecast_hourly_times = [
+            hour.get("fxTime") for hour in hourlymsg[:24]
+        ]
+
         _LOGGER.info("success to load local informations")
